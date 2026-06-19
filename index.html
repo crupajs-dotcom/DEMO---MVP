@@ -15,6 +15,7 @@
     --ink:#0C140F; --paper:#F6F8F4; --net:#00C46A; --deep:#0A7F52;
     --champagne:#E7C383; --coral:#FF6B57; --slate:#6B756E; --slate-2:#9AA39C;
     --line:#E4E9E2;
+    --accentGrad:linear-gradient(180deg,#23E18D 0%,#00C46A 52%,#00AF5D 100%); --btnText:#05140C;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
   html,body{height:100%}
@@ -65,8 +66,8 @@
   .btn{
     appearance:none;border:0;cursor:pointer;width:100%;font-family:inherit;
     font-size:17px;font-weight:700;padding:16px 20px;border-radius:16px;letter-spacing:-.1px;
-    color:#05140C;
-    background:linear-gradient(180deg,#23E18D 0%,#00C46A 52%,#00AF5D 100%);
+    color:var(--btnText);
+    background:var(--accentGrad);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 4px rgba(0,90,50,.25), 0 9px 20px -7px rgba(0,196,106,.55), 0 2px 4px rgba(0,0,0,.12);
     transition:transform .12s ease, box-shadow .18s ease, filter .15s ease;
   }
@@ -121,7 +122,7 @@
   .progressbar > i{display:block;height:100%;width:0;background:var(--net);border-radius:5px;transition:width .2s linear}
 
   .dash-head{display:flex;align-items:center;justify-content:space-between}
-  .avatar{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-size:15px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-size:15px;cursor:pointer}
   .nw-label{font-size:13.5px;color:var(--slate);font-weight:600;margin-top:18px}
   .nw{font-size:46px;font-weight:800;letter-spacing:-1.4px;line-height:1;margin-top:4px;color:var(--ink)}
   .nw .cur{font-size:24px;font-weight:700;color:var(--slate);letter-spacing:0;margin-left:4px}
@@ -373,52 +374,323 @@
   .mr-note{ font-size:12px; color:var(--slate); line-height:1.45; margin-top:12px; }
   .mr-note b{ color:var(--deep); }
 
-  /* ====== INVESTOR GATE ====== */
-  .gate{
-    position:fixed; inset:0; z-index:1000;
-    display:flex; align-items:center; justify-content:center; padding:26px;
+  /* --- plan badge + plans + upsell --- */
+  .hgroup{ display:flex; align-items:center; gap:8px; }
+  .planbadge{ font-size:11px; font-weight:800; letter-spacing:.3px; padding:5px 11px; border-radius:999px; cursor:pointer; background:#EFF1ED; color:#6B756E; transition:transform .12s; white-space:nowrap; }
+  .planbadge:active{ transform:scale(.95); }
+  .upsell{ display:flex; align-items:center; gap:11px; margin-top:16px; padding:12px 14px; border-radius:16px; background:var(--accentGrad); color:var(--btnText); cursor:pointer; transition:transform .12s; }
+  .upsell:active{ transform:scale(.99); }
+  .up-tx{ display:flex; flex-direction:column; line-height:1.3; }
+  .up-tx b{ font-size:13.5px; font-weight:800; }
+  .up-tx span{ font-size:11.5px; opacity:.88; }
+  .up-cta{ margin-left:auto; font-size:12.5px; font-weight:800; flex:none; }
+  .cb-rate{ font-size:12px; font-weight:700; color:var(--net); margin:-6px 0 12px; }
+  .plan-card{ border:1.5px solid var(--line); border-radius:18px; padding:16px; margin-bottom:12px; background:#fff; }
+  .plan-card.current{ border-color:var(--net); box-shadow:0 8px 22px -10px rgba(0,196,106,.45); }
+  .pc-head{ display:flex; align-items:baseline; justify-content:space-between; }
+  .pc-name{ font-size:18px; font-weight:800; }
+  .pc-price{ font-size:14px; font-weight:700; color:var(--deep); }
+  .pc-tag{ display:inline-block; margin-top:6px; font-size:11px; font-weight:800; color:var(--deep); background:#EAF7F0; padding:3px 9px; border-radius:999px; }
+  .pc-feats{ list-style:none; margin:12px 0 14px; padding:0; display:flex; flex-direction:column; gap:7px; }
+  .pc-feats li{ font-size:13px; padding-left:22px; position:relative; line-height:1.4; }
+  .pc-feats li::before{ content:"✓"; position:absolute; left:0; top:0; font-weight:800; }
+  .pc-feats li.key{ color:var(--ink); font-weight:700; }
+  .pc-feats li.key::before{ color:var(--deep); }
+  .pc-feats li.more{ color:var(--slate); font-weight:500; }
+  .pc-feats li.more::before{ color:var(--slate-2); }
+  .pc-reco{ display:inline-block; margin-bottom:8px; font-size:10.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:#05140C; background:var(--net); padding:4px 10px; border-radius:999px; }
+
+  /* --- theme swatches + plans carousel --- */
+  .vzhled-lbl{ font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--slate); margin:2px 0 10px; }
+  .themes{ display:flex; gap:14px; margin-bottom:20px; }
+  .swatch{ width:34px; height:34px; border-radius:50%; cursor:pointer; box-shadow:0 2px 7px rgba(0,0,0,.18); transition:transform .12s; }
+  .swatch:active{ transform:scale(.9); }
+  .swatch.sel{ box-shadow:0 0 0 2px var(--paper), 0 0 0 4px var(--ink); }
+  .plans-top{ display:flex; align-items:center; gap:10px; padding:max(54px, env(safe-area-inset-top)) 18px 12px; }
+  .plans-title{ font-size:18px; font-weight:800; }
+  .plans-dots{ margin-left:auto; display:flex; gap:6px; }
+  .plans-dots i{ width:7px; height:7px; border-radius:50%; background:var(--line); transition:width .2s, background .2s; }
+  .plans-dots i.on{ background:var(--deep); width:18px; border-radius:4px; }
+  #plansList{ flex:1; display:flex; gap:14px; padding:0 16px; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+  #plansList::-webkit-scrollbar{ display:none; }
+  #plansList .plan-card{ flex:0 0 84%; scroll-snap-align:start; display:flex; flex-direction:column; overflow-y:auto; padding:18px; border:1.5px solid var(--line); border-radius:20px; background:#fff; box-shadow:0 12px 30px -16px rgba(0,0,0,.2); margin:6px 0 16px; }
+  #plansList .pc-name{ font-size:30px; letter-spacing:-.6px; }
+  #plansList .pc-price{ font-size:15px; }
+  #plansList .pc-feats{ margin:16px 0 20px; gap:9px; }
+  #plansList .pc-feats li{ font-size:14px; }
+  .swipe-hint{ text-align:center; font-size:12px; color:var(--slate); margin-top:12px; }
+
+  /* --- profile + settings --- */
+  .prof-card{ display:flex; align-items:center; gap:13px; padding:16px; border:1.5px solid var(--line); border-radius:18px; background:#fff; margin-bottom:8px; }
+  .prof-av{ width:48px; height:48px; border-radius:50%; background:var(--ink); color:var(--paper); display:grid; place-items:center; font-weight:800; font-size:19px; flex:none; }
+  .prof-id{ flex:1; }
+  .prof-name{ font-weight:800; font-size:16px; }
+  .prof-mail{ font-size:12.5px; color:var(--slate); margin-top:2px; }
+  .set-row{ display:flex; align-items:center; gap:12px; padding:13px 4px; border-bottom:1px solid var(--line); cursor:pointer; }
+  .set-ic{ width:30px; height:30px; border-radius:9px; background:#F0EDE7; display:grid; place-items:center; flex:none; }
+  .set-tx{ font-weight:600; font-size:14.5px; }
+  .set-val{ margin-left:auto; font-size:13px; color:var(--slate); font-weight:600; }
+  .set-ch{ color:var(--slate-2); font-size:18px; margin-left:8px; }
+  .set-block{ padding:14px 4px; border-bottom:1px solid var(--line); }
+  .set-label{ font-weight:600; font-size:14.5px; margin-bottom:12px; }
+  .toggle{ margin-left:auto; width:42px; height:24px; border-radius:999px; background:var(--line); position:relative; flex:none; transition:background .2s; }
+  .toggle::after{ content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:left .2s; }
+  .toggle.on{ background:var(--net); }
+  .toggle.on::after{ left:20px; }
+
+  /* light/dark mode picker */
+  .modes{ display:flex; gap:12px; }
+  .modeBtn{ flex:1; display:flex; flex-direction:column; align-items:center; gap:9px; padding:12px; border:1.5px solid var(--line); border-radius:14px; background:#fff; font-family:inherit; font-size:13px; font-weight:700; color:var(--ink); cursor:pointer; transition:border-color .15s; }
+  .modeBtn.sel{ border-color:var(--net); box-shadow:0 0 0 1px var(--net); }
+  .mode-prev{ width:100%; height:38px; border-radius:9px; }
+  .mode-prev.light{ background:linear-gradient(135deg,#F6F8F4,#E6F2EB); border:1px solid #E4E9E2; }
+  .mode-prev.dark{ background:linear-gradient(135deg,#0C140F,#1b2a22); }
+  /* swipe hint on plans */
+  .plans-swipe{ position:absolute; right:12px; top:44%; color:var(--deep); font-size:30px; font-weight:800; pointer-events:none; transition:opacity .3s; animation:swipeNudge 1.2s ease-in-out infinite; }
+  @keyframes swipeNudge{ 0%,100%{ transform:translateX(0); opacity:.35 } 50%{ transform:translateX(7px); opacity:.95 } }
+
+  /* ---------- DARK MODE ---------- */
+  .dark{ --line:#27332D; }
+  .dark .screen.light{ background:#0C140F; color:#EAEFEA; }
+  .dark .acard, .dark .askbar, .dark .bankrow, .dark .cc.now, .dark .chip,
+  .dark .code-box, .dark .field input, .dark .goal-card, .dark .opt,
+  .dark .prof-card, .dark .rwd, .dark .sbtn, .dark .modeBtn{ background:#16211B; border-color:#27332D; }
+  .dark .sbtn.dark{ background:#05140C; }
+  .dark .opt.sel{ background:var(--net); border-color:var(--net); color:#05140C; }
+  .dark .bankrow .bname, .dark .chip, .dark .code-box, .dark .feat, .dark .onb-back,
+  .dark .onb-label, .dark .opt, .dark .pc-feats li.key, .dark .perso > b,
+  .dark .askbar input, .dark .gc-top b, .dark .modeBtn, .dark .set-tx, .dark .set-label{ color:#EAEFEA; }
+  .dark .nw{ background:none; -webkit-text-fill-color:#F6F8F4; color:#F6F8F4; filter:none; }
+  .dark .nw .cur{ -webkit-text-fill-color:#8A938C; color:#8A938C; }
+  .dark .leak .ic, .dark .prow .ic, .dark .rwd .ic, .dark .set-ic{ background:#222E27; }
+  .dark .leak .ic svg, .dark .prow .ic svg, .dark .rwd .ic svg, .dark .set-ic svg{ stroke:#EAEFEA; }
+  .dark .chg, .dark .invest-note, .dark .onb-note, .dark .perso, .dark .save-banner, .dark .trust, .dark .pc-tag, .dark .tag.ok, .dark .feat .ck{ background:#12241B; }
+  .dark .chg, .dark .trust, .dark .invest-note, .dark .save-banner .s, .dark .save-banner .b{ color:#35D98A; }
+  .dark .pill-top, .dark .tag.save{ background:#2A1714; }
+  .dark .tag.neutral{ background:#222E27; }
+  .dark .statusbar.onlight{ color:#EAEFEA; }
+  #plansList .plan-card.reco{ border-color:var(--net); box-shadow:0 12px 30px -14px rgba(0,196,106,.4); }
+  .dark #plansList .plan-card{ background:#16211B; border-color:#27332D; }
+  .dark #plansList .plan-card.reco{ border-color:var(--net); }
+
+  .mtile{ background:#F0EDE7; }
+  /* ---- dark mode: finish (menu, buttons, modal, chat, tiles) ---- */
+  .dark .nav{ background:rgba(12,20,15,.94); }
+  .dark .home-ind{ background:#F6F8F4; opacity:.45; }
+  .dark .sbtn{ color:#EAEFEA; }
+  .dark .modal{ background:#16211B; }
+  .dark .modal h3{ color:#EAEFEA; }
+  .dark .modal .mic{ background:#2A1714; }
+  .dark .bub.ai{ background:#16211B; color:#EAEFEA; }
+  .dark .perso-ic{ background:#22302A; }
+  .dark .mtile{ background:#222E27; }
+  .dark .mtile svg{ stroke:#EAEFEA; }
+  .dark .cb-stat .box{ background:#16211B; border-color:#27332D; }
+  .dark .acc .nm, .dark .acard .nm, .dark .leak .nm, .dark .prow .nm, .dark .rwd .nm, .dark .offer .nm, .dark .nm{ color:#EAEFEA; }
+  .dark .pc-name, .dark .plans-title, .dark .as-name, .dark .prof-name{ color:#F6F8F4; }
+  .dark .bal{ color:#EAEFEA; }
+
+  /* ---- SJEDNÁVÁNÍ: stepper, varianty, formulář, doklady, podpis ---- */
+  .arr-steps{ display:flex; gap:6px; margin:10px 0 16px; }
+  .arr-st{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; font-size:10.5px; font-weight:700; color:var(--slate); text-align:center; }
+  .arr-st .arr-stn{ width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--line); color:var(--slate); font-size:12px; }
+  .arr-st.on .arr-stn{ background:var(--ink); color:var(--paper); }
+  .arr-st.done .arr-stn{ background:var(--net); color:#05140C; }
+  .arr-st.on, .arr-st.done{ color:var(--ink); }
+  .var-card{ position:relative; border:1.5px solid var(--line); border-radius:18px; padding:16px; margin-bottom:13px; cursor:pointer; transition:border-color .15s, box-shadow .15s; background:#fff; }
+  .var-card.sel{ border-color:var(--net); box-shadow:0 0 0 1px var(--net); }
+  .var-badge{ position:absolute; top:-10px; left:16px; font-size:9.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; background:var(--net); color:#05140C; padding:3px 9px; border-radius:999px; }
+  .var-head{ display:flex; align-items:center; gap:10px; }
+  .var-logo{ width:34px; height:34px; border-radius:9px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; overflow:hidden; font-weight:800; color:var(--ink); }
+  .var-logo img{ width:24px; height:24px; object-fit:contain; }
+  .var-name{ font-size:17px; font-weight:800; }
+  .var-tick{ margin-left:auto; color:var(--net); display:flex; }
+  .var-sub{ font-size:14px; color:var(--ink); margin-top:8px; }
+  .var-sub b{ color:var(--deep); }
+  .var-desc{ font-size:13px; color:var(--slate); margin:4px 0 10px; }
+  .var-feats{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px; }
+  .var-feats li{ font-size:13px; display:flex; gap:7px; align-items:flex-start; color:var(--ink); }
+  .var-feats li .ck{ color:var(--net); flex:none; margin-top:1px; display:flex; }
+  .arr-field{ margin-bottom:12px; }
+  .arr-field label{ display:block; font-size:12px; font-weight:700; color:var(--slate); margin-bottom:5px; }
+  .arr-field input{ width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:13px; font-size:15px; font-family:inherit; color:var(--ink); background:#fff; box-sizing:border-box; }
+  .arr-field input:focus{ outline:none; border-color:var(--net); }
+  .arr-row2{ display:flex; gap:10px; }
+  .arr-row2 .arr-field{ flex:1; }
+  .arr-upl{ display:flex; align-items:center; gap:12px; border:1.5px solid var(--line); border-radius:14px; padding:13px 14px; margin-bottom:10px; cursor:pointer; }
+  .arr-upl .u-ic{ width:38px; height:38px; border-radius:10px; background:var(--paper); display:flex; align-items:center; justify-content:center; flex:none; }
+  .arr-upl.up{ border-color:var(--net); background:#F1FBF6; }
+  .arr-upl .u-btn{ margin-left:auto; padding:8px 14px; border-radius:10px; border:1.5px solid var(--ink); background:transparent; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; color:var(--ink); flex:none; }
+  .arr-upl.up .u-btn{ background:var(--net); border-color:var(--net); color:#05140C; }
+  .arr-sum{ background:var(--paper); border-radius:14px; padding:6px 16px; margin-bottom:16px; }
+  .arr-sum .r{ display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .arr-sum .r:last-child{ border-bottom:none; }
+  .arr-sum .r span{ color:var(--slate); }
+  .arr-sign{ border:2px dashed var(--line); border-radius:16px; min-height:120px; display:flex; align-items:center; justify-content:center; color:var(--slate); font-size:14px; cursor:pointer; margin-bottom:14px; }
+  .arr-sign.signed{ border-style:solid; border-color:var(--net); }
+  .arr-consent{ display:flex; gap:10px; align-items:flex-start; font-size:13px; color:var(--slate); margin-bottom:18px; cursor:pointer; line-height:1.4; }
+  .arr-cbx{ width:22px; height:22px; border-radius:6px; border:2px solid var(--line); flex:none; display:flex; align-items:center; justify-content:center; }
+  .arr-cbx svg{ opacity:0; }
+  .arr-consent.on .arr-cbx{ background:var(--net); border-color:var(--net); }
+  .arr-consent.on .arr-cbx svg{ opacity:1; color:#05140C; }
+  /* dark mode for sjednání */
+  .dark .var-card, .dark .arr-field input, .dark .arr-upl{ background:#16211B; border-color:#27332D; }
+  .dark .var-name, .dark .var-sub, .dark .var-feats li, .dark .arr-field input, .dark .arr-upl .nm{ color:#EAEFEA; }
+  .dark .var-logo{ background:#0F1A14; border-color:#27332D; }
+  .dark .arr-st.on .arr-stn{ background:#EAEFEA; color:#05140C; }
+  .dark .arr-st.on, .dark .arr-st.done{ color:#EAEFEA; }
+  .dark .arr-sum, .dark .arr-upl .u-ic{ background:#0F1A14; }
+  .dark .arr-upl.up{ background:#12241B; }
+  .dark .arr-upl .u-btn{ color:#EAEFEA; border-color:#EAEFEA; }
+  .dark .arr-upl.up .u-btn{ color:#05140C; border-color:var(--net); }
+
+  /* ---- výběr částky u investic ---- */
+  .amt-freq{ display:flex; gap:8px; margin-bottom:10px; }
+  .amt-fb{ flex:1; padding:11px; border:1.5px solid var(--line); border-radius:12px; background:#fff; font-family:inherit; font-weight:700; font-size:13px; color:var(--ink); cursor:pointer; }
+  .amt-fb.on{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .amt-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .amt-chip{ flex:1 1 calc(50% - 4px); padding:12px; border:1.5px solid var(--line); border-radius:12px; background:#fff; font-family:inherit; font-weight:800; font-size:15px; color:var(--ink); cursor:pointer; }
+  .amt-chip.on{ border-color:var(--net); box-shadow:0 0 0 1px var(--net); color:var(--deep); }
+  .amt-proj{ font-size:12.5px; color:var(--slate); background:var(--paper); border-radius:12px; padding:11px 14px; margin-bottom:18px; line-height:1.45; }
+  .amt-proj b{ color:var(--ink); }
+  .amt-proj span{ display:block; margin-top:4px; font-size:11px; opacity:.85; }
+  .dark .amt-fb, .dark .amt-chip{ background:#16211B; border-color:#27332D; color:#EAEFEA; }
+  .dark .amt-fb.on{ background:#EAEFEA; color:#05140C; border-color:#EAEFEA; }
+  .dark .amt-proj{ background:#0F1A14; }
+  .dark .amt-proj b{ color:#EAEFEA; }
+
+  /* ---- ruční úprava nabídky ---- */
+  .arr-manual{ font-size:11.5px; color:var(--slate); text-align:center; margin:14px 4px 2px; line-height:1.5; }
+  .arr-manual .lnk{ color:var(--deep); font-weight:700; cursor:pointer; text-decoration:underline; }
+  .manual-box{ border:1.5px dashed var(--line); border-radius:14px; padding:14px; margin-top:8px; text-align:left; }
+  .manual-h{ font-size:13px; font-weight:800; margin-bottom:10px; }
+  .manual-note{ font-size:11.5px; color:var(--slate); line-height:1.45; }
+  .dark .manual-box{ border-color:#27332D; }
+  .dark .manual-h{ color:#EAEFEA; }
+
+  .manual-out{ font-size:14px; font-weight:700; color:var(--ink); margin:2px 0 10px; }
+  .dark .manual-out{ color:#EAEFEA; }
+  .bub.typing{ display:inline-flex; gap:5px; align-items:center; padding-top:14px; padding-bottom:14px; }
+  .bub.typing span{ width:7px; height:7px; border-radius:50%; background:var(--slate); display:inline-block; animation:tdot 1s infinite; }
+  .bub.typing span:nth-child(2){ animation-delay:.15s; }
+  .bub.typing span:nth-child(3){ animation-delay:.3s; }
+  @keyframes tdot{ 0%,60%,100%{ transform:translateY(0); opacity:.4 } 30%{ transform:translateY(-4px); opacity:1 } }
+
+  .mo-row{ display:flex; justify-content:space-between; gap:12px; font-size:13.5px; padding:4px 0; font-weight:400; }
+  .mo-row span{ color:var(--slate); }
+  .mo-row b{ color:var(--ink); }
+  .dark .mo-row span{ color:#9fb0a6; }
+  .dark .mo-row b{ color:#EAEFEA; }
+  .ai-cta-wrap{ margin-top:10px; font-size:13px; color:var(--slate); }
+  .ai-cta{ display:inline-flex; align-items:center; gap:6px; margin-top:7px; padding:9px 14px; border:1.5px solid var(--net); background:rgba(0,196,106,.10); color:var(--deep); font-family:inherit; font-weight:700; font-size:13px; border-radius:12px; cursor:pointer; }
+  .dark .ai-cta-wrap{ color:#9fb0a6; }
+  .dark .ai-cta{ color:#35D98A; background:rgba(0,196,106,.16); }
+  .sign-canvas{ width:100%; height:160px; border:1.5px dashed var(--line); border-radius:12px; background:#fff; touch-action:none; display:block; margin-bottom:12px; cursor:crosshair; }
+  .arr-gate{ font-size:12px; color:var(--coral); text-align:center; margin-top:10px; min-height:15px; }
+  .cam-view{ position:relative; height:200px; border-radius:14px; overflow:hidden; background:linear-gradient(160deg,#0c140f,#1b2a22); margin-bottom:12px; display:flex; align-items:center; justify-content:center; }
+  .cam-id{ width:74%; height:62%; border-radius:10px; background:linear-gradient(135deg,#eef2f7,#cfd9e4); box-shadow:0 10px 24px rgba(0,0,0,.45); position:relative; }
+  .cam-id::before{ content:''; position:absolute; left:12px; top:14px; width:38px; height:48px; border-radius:6px; background:#9fb0c2; }
+  .cam-id::after{ content:''; position:absolute; left:60px; right:14px; top:18px; height:7px; border-radius:3px; background:#aab7c6; box-shadow:0 16px 0 #aab7c6, 0 32px 0 #aab7c6; }
+  .cam-frame{ position:absolute; inset:16px; border:2px solid rgba(255,255,255,.25); border-radius:12px; pointer-events:none; }
+  .cam-scan{ position:absolute; left:10%; right:10%; height:3px; background:linear-gradient(90deg,transparent,#23E18D,transparent); box-shadow:0 0 14px #23E18D; top:20%; animation:camScan 1.6s ease-in-out infinite; }
+  @keyframes camScan{ 0%{top:20%} 50%{top:78%} 100%{top:20%} }
+  .cam-view.shot .cam-scan{ display:none; }
+  .cam-view.flash::after{ content:''; position:absolute; inset:0; background:#fff; animation:camFlash .2s ease; }
+  @keyframes camFlash{ from{opacity:.9} to{opacity:0} }
+  .cam-status{ position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:12px; color:#dff5ea; font-weight:700; }
+  .cam-bar{ height:6px; border-radius:4px; background:var(--line); overflow:hidden; margin-bottom:12px; }
+  .cam-bar > i{ display:block; height:100%; width:0; background:var(--net); border-radius:4px; transition:width .5s ease; }
+  #plansList{ display:block; padding:0; overflow:visible; }
+  .up-bar{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .up-x{ width:36px; height:36px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:17px; line-height:1; color:var(--ink); cursor:pointer; flex:none; }
+  .up-title{ font-size:16px; font-weight:800; }
+  .up-pill{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; padding:9px 15px; border-radius:999px; border:1.5px solid var(--net); background:rgba(0,196,106,.10); color:var(--deep); font-family:inherit; font-weight:800; font-size:13px; cursor:pointer; }
+  .up-tabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; }
+  .up-tabs::-webkit-scrollbar{ display:none; }
+  .up-tab{ flex:none; padding:9px 16px; border-radius:999px; border:0; background:transparent; font-family:inherit; font-weight:700; font-size:15px; color:var(--slate); cursor:pointer; }
+  .up-tab.on{ background:var(--ink); color:var(--paper); }
+  .up-tab.cur{ opacity:.5; }
+  .up-tab.cur.on{ opacity:1; }
+  .up-card{ position:relative; border-radius:22px; padding:20px; overflow:hidden; margin-bottom:16px; }
+  .up-cardimg{ position:absolute; right:-32px; top:18px; width:120px; height:78px; border-radius:12px; transform:rotate(-12deg); box-shadow:0 14px 26px rgba(0,0,0,.28); opacity:.9; }
+  .up-cname{ font-size:34px; font-weight:800; letter-spacing:-.8px; }
+  .up-cprice{ font-size:16px; font-weight:700; color:var(--ink); margin-top:2px; }
+  .up-ctag{ font-size:13px; font-weight:700; color:var(--deep); margin-top:6px; }
+  .up-feats{ list-style:none; padding:0; margin:18px 0 0; display:flex; flex-direction:column; gap:11px; }
+  .up-feats li{ font-size:14px; display:flex; gap:10px; align-items:flex-start; color:var(--ink); }
+  .up-feats li .ck{ color:var(--deep); flex:none; margin-top:1px; display:flex; }
+  .up-homehead{ margin:8px 0 20px; }
+  .up-hname{ font-size:42px; font-weight:800; letter-spacing:-1px; }
+  .up-hsub{ font-size:14px; color:var(--slate); margin-top:2px; }
+  .up-actions{ display:flex; gap:26px; margin-bottom:24px; }
+  .up-act{ background:none; border:0; font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:7px; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; }
+  .up-acti{ width:56px; height:56px; border-radius:50%; background:var(--paper); border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; }
+  .plans-msg{ text-align:center; font-size:16px; line-height:1.7; color:var(--ink); padding:50px 20px; }
+  .plans-msg b{ color:var(--deep); }
+  .dark .up-x, .dark .up-acti{ background:#16211B; border-color:#27332D; }
+  .dark .up-title, .dark .up-hname, .dark .up-act, .dark .plans-msg{ color:#EAEFEA; }
+  .dark .up-tab.on{ background:#EAEFEA; color:#05140C; }
+  .invite-card{ display:flex; align-items:center; gap:13px; background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:14px 16px; margin-top:12px; cursor:pointer; }
+  .invite-ic{ width:42px; height:42px; border-radius:12px; background:var(--ink); display:flex; align-items:center; justify-content:center; flex:none; }
+  .invite-t{ font-weight:800; font-size:15px; color:var(--ink); }
+  .invite-s{ font-size:13px; color:var(--slate); margin-top:1px; }
+  .invite-ch{ margin-left:auto; color:var(--slate); font-size:22px; line-height:1; }
+  .dark .invite-card{ background:#16211B; border-color:#27332D; }
+  .dark .invite-ic{ background:#05140C; }
+  .dark .invite-t{ color:#EAEFEA; }
+  .up-card{ animation:upCardIn .45s cubic-bezier(.2,.7,.3,1); padding:22px 20px; }
+  .up-card.dk{ box-shadow:0 18px 42px -18px rgba(0,0,0,.55); }
+  .up-cardimg{ right:-34px; top:20px; width:130px; height:84px; overflow:hidden; opacity:1; box-shadow:0 16px 30px rgba(0,0,0,.4); animation:upFloat 4s ease-in-out infinite; }
+  .up-cardimg::after{ content:''; position:absolute; left:14px; bottom:15px; width:24px; height:17px; border-radius:4px; background:rgba(255,255,255,.6); }
+  .up-shine{ position:absolute; top:0; left:0; width:42%; height:100%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent); transform:translateX(-130%) rotate(8deg); animation:upShine 3.4s ease-in-out infinite; }
+  .up-cname{ position:relative; }
+  .up-cprice{ opacity:.92; }
+  .up-feats{ gap:12px; }
+  .up-feats li{ color:inherit; animation:featIn .42s ease both; }
+  .up-feats li.more{ opacity:.82; }
+  .up-feats .up-fi{ flex:none; color:var(--fi,var(--net)); margin-top:0; display:flex; }
+  @keyframes upCardIn{ from{ opacity:0; transform:translateY(16px) } to{ opacity:1; transform:none } }
+  @keyframes upFloat{ 0%,100%{ transform:rotate(-12deg) translateY(0) } 50%{ transform:rotate(-12deg) translateY(-7px) } }
+  @keyframes upShine{ 0%{ transform:translateX(-130%) rotate(8deg) } 55%,100%{ transform:translateX(360%) rotate(8deg) } }
+  @keyframes featIn{ from{ opacity:0; transform:translateX(-10px) } to{ opacity:1; transform:none } }
+</style>
+<style>
+  /* ====== GATE (neutral, no investor wording) ====== */
+  .gate{ position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; padding:26px;
     background:radial-gradient(1100px 700px at 50% -10%, #14211a 0%, var(--ink) 60%), var(--ink);
-    transition:opacity .45s ease, visibility .45s ease;
-  }
+    transition:opacity .45s ease, visibility .45s ease; }
   .gate.hide{ opacity:0; visibility:hidden; pointer-events:none; }
-  .gate .bg-net{ position:absolute; inset:0; z-index:0; opacity:.5; pointer-events:none; }
   .gate-card{ position:relative; z-index:2; width:100%; max-width:382px; text-align:center; }
-  .gate-card .logo{ justify-content:center; margin-bottom:26px; }
-  .gate-eyebrow{ font-size:12px; font-weight:800; letter-spacing:1.8px; text-transform:uppercase; color:var(--net); }
-  .gate-h1{ font-size:30px; font-weight:800; letter-spacing:-.6px; color:var(--paper); line-height:1.12; margin:10px 0 12px; }
+  .gate .logo{ display:inline-flex; align-items:center; gap:.34em; font-weight:800; letter-spacing:-.5px; justify-content:center; margin-bottom:24px; }
+  .gate .logo .n{ color:var(--net); font-weight:500; }
+  .gate .vmark{ height:1.18em; width:1.18em; display:block; flex:none; }
+  .gate-h1{ font-size:28px; font-weight:800; letter-spacing:-.5px; line-height:1.14; margin:0 0 12px; color:var(--paper); }
   .gate-sub{ font-size:14.5px; line-height:1.5; color:var(--slate-2); margin-bottom:24px; }
-  .gate-input{
-    width:100%; font-family:inherit; font-size:18px; font-weight:700; text-align:center; letter-spacing:3px;
+  .gate-input{ width:100%; font-family:inherit; font-size:18px; font-weight:700; text-align:center; letter-spacing:3px;
     padding:16px; border-radius:14px; border:1.5px solid #25342c; background:#0f1a14; color:var(--paper);
-    outline:none; transition:border-color .15s; margin-bottom:14px; text-transform:uppercase;
-  }
+    outline:none; transition:border-color .15s; margin-bottom:14px; text-transform:uppercase; }
   .gate-input:focus{ border-color:var(--net); }
   .gate-input::placeholder{ color:#56635b; letter-spacing:.5px; font-weight:500; text-transform:none; }
-  .gate-err{ display:none; color:var(--coral); font-size:13px; font-weight:700; margin:-4px 0 12px; }
-  .gate-err.show{ display:block; animation:gshake .35s; }
-  @keyframes gshake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  .gate-foot{ font-size:11.5px; color:var(--slate); margin-top:20px; line-height:1.5; }
+  .gate-err{ display:none; color:#FF6B57; font-size:13px; font-weight:700; margin:-4px 0 12px; }
+  .gate-err.show{ display:block; }
+  .gate-foot{ display:none; }
   .phone, .phone *{ cursor:default !important; }
 </style>
 </head>
 <body>
 
-<!-- ===== INVESTOR GATE ===== -->
+<!-- ===== GATE ===== -->
 <div id="gate" class="gate">
   <svg class="bg-net" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 800"><g fill="#1c2a22"><circle cx="120" cy="120" r="3"/><circle cx="300" cy="80" r="2"/><circle cx="520" cy="160" r="2.5"/><circle cx="900" cy="100" r="3"/><circle cx="1080" cy="220" r="2"/><circle cx="1000" cy="520" r="2.5"/><circle cx="160" cy="600" r="2.5"/><circle cx="80" cy="420" r="2"/><circle cx="380" cy="700" r="3"/><circle cx="700" cy="720" r="2"/><circle cx="1120" cy="640" r="2.5"/><circle cx="640" cy="380" r="2"/></g><g stroke="#16221b" stroke-width="1"><line x1="120" y1="120" x2="300" y2="80"/><line x1="300" y1="80" x2="520" y2="160"/><line x1="900" y1="100" x2="1080" y2="220"/><line x1="80" y1="420" x2="160" y2="600"/><line x1="640" y1="380" x2="520" y2="160"/><line x1="1000" y1="520" x2="1120" y2="640"/></g></svg>
   <div class="gate-card">
-    <div class="logo lockup" style="font-size:23px"><svg class="vmark" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="86" height="86" rx="25" fill="#00C46A"/><path d="M27 47 L43 65 L71 27" fill="none" stroke="#0C140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lk-txt"><span class="v">Valu</span><span class="n">neto</span></span></div>
-    <div class="gate-eyebrow">Náhled pro investory</div>
-    <h1 class="gate-h1">Přístup jen pro zvané</h1>
-    <p class="gate-sub">Zadej přístupový kód, který jsi dostal od týmu Valuneto, a otevři si klikací demo.</p>
-    <input id="gateCode" class="gate-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Přístupový kód" onkeydown="if(event.key==='Enter'){unlock();}">
+    <div class="logo"><svg class="vmark" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="86" height="86" rx="25" fill="#00C46A"/><path d="M27 47 L43 65 L71 27" fill="none" stroke="#0C140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span style="font-weight:800">Valu</span><span class="n">neto</span></span></div>
+    <h1 class="gate-h1">Zadej přístupový kód</h1>
+    <p class="gate-sub">Otevři si demo Valuneto.</p>
+    <input id="gateCode" class="gate-input" type="text" autocomplete="off" spellcheck="false" placeholder="Přístupový kód" onkeydown="if(event.key==='Enter'){unlock();}">
     <div id="gateErr" class="gate-err">Neplatný kód. Zkus to znovu.</div>
     <button class="btn" style="margin-top:4px" onclick="unlock()">Vstoupit →</button>
-    <p class="gate-foot">Demo běží na simulovaných datech. Žádné reálné účty, žádné platby.</p>
   </div>
 </div>
-
-<div class="wm">Náhled pro investory — přístup jen pro zvané.</div>
 
 <svg class="bg-net" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 800">
   <g fill="#1c2a22">
@@ -590,7 +862,7 @@
           </div>
           <div class="trust">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
-            Šifrováno přes PSD2 · regulováno ČNB · odpojíš kdykoliv
+            Šifrováno přes PSD2 · regulováno ČNB
           </div>
         </div>
       </section>
@@ -610,7 +882,7 @@
         <div class="grow tabpad">
           <div class="dash-head">
             <div class="logo lockup deepn" style="font-size:18px"><svg class="vmark" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="86" height="86" rx="25" fill="#00C46A"/><path d="M27 47 L43 65 L71 27" fill="none" stroke="#0C140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lk-txt"><span class="v">Valu</span><span class="n">neto</span></span></div>
-            <div class="avatar">T</div>
+            <div class="hgroup"><span class="planbadge" onclick="goTo('s-plans')">Free</span><div class="avatar" onclick="goTo('s-profile')">T</div></div>
           </div>
           <div class="nw-label">Tvé celkové čisté jmění</div>
           <div class="nw"><span id="nwVal">0</span><span class="cur">Kč</span></div>
@@ -625,6 +897,8 @@
             <path id="chartLine" d="M0 78 C 40 74, 70 70, 110 64 S 180 54, 220 44 S 300 22, 360 10" fill="none" stroke="#0A7F52" stroke-width="3" stroke-linecap="round"/>
             <circle id="chartDot" cx="360" cy="10" r="4.5" fill="#00C46A"/>
           </svg>
+          <div class="upsell" id="upsell" onclick="upsellGo()"><div class="up-tx"><b id="upTitle">Přejdi na Plus</b><span id="upSub">Hlídače, neomezené účty, 15 % cashback</span></div><span class="up-cta">Zobrazit →</span></div>
+          <div class="invite-card" onclick="openInvite()"><span class="invite-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8"/><rect x="2.5" y="7.5" width="19" height="4.5" rx="1"/><path d="M12 7.5V21"/><path d="M12 7.5C12 7.5 11.2 4 9 4a2 2 0 0 0 0 3.5z"/><path d="M12 7.5C12 7.5 12.8 4 15 4a2 2 0 0 1 0 3.5z"/></svg></span><div><div class="invite-t">Pozvat přátele</div><div class="invite-s">Získej 250 Kč za každého</div></div><span class="invite-ch">›</span></div>
           <div class="accounts">
             <div class="acc"><div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=csob.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E7EEFB';p.style.color='#0033A0';p.textContent='▦';"></div><div><div class="nm">Běžný účet · ČSOB</div><div class="sm">•••• 4821</div></div><div class="bal">38 420 Kč</div></div>
             <div class="acc"><div class="ic" style="background:#fff;padding:0 3px"><svg viewBox="0 0 150 40" style="width:100%;height:auto;display:block"><text x="1" y="31" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="31" letter-spacing="-1"><tspan fill="#141414">air</tspan><tspan fill="#84C13F" font-size="36" dx="1">/</tspan><tspan fill="#141414" dx="1">bank</tspan></text></svg></div><div><div class="nm">Spořicí účet · Air Bank</div><div class="sm">•••• 0097</div></div><div class="bal">85 000 Kč</div></div>
@@ -648,7 +922,7 @@
       <!-- 3b ACCOUNTS -->
       <section class="screen light" id="s-accounts">
         <div class="grow tabpad">
-          <div class="scr-head"><h2>Účty</h2><div class="avatar">T</div></div>
+          <div class="scr-head"><h2>Účty</h2><div class="hgroup"><span class="planbadge" onclick="goTo('s-plans')">Free</span><div class="avatar" onclick="goTo('s-profile')">T</div></div></div>
           <div class="sumline"><span class="l">Celkové čisté jmění</span><span class="v">235 850 Kč</span></div>
           <div class="acard"><div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=csob.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E7EEFB';p.style.color='#0033A0';p.textContent='▦';"></div><div><div class="nm">Běžný účet · ČSOB</div><div class="sm">•••• 4821 · připojeno přes PSD2</div></div><div class="bal">38 420 Kč</div></div>
           <div class="acard"><div class="ic" style="background:#fff;padding:0 3px"><svg viewBox="0 0 150 40" style="width:100%;height:auto;display:block"><text x="1" y="31" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="31" letter-spacing="-1"><tspan fill="#141414">air</tspan><tspan fill="#84C13F" font-size="36" dx="1">/</tspan><tspan fill="#141414" dx="1">bank</tspan></text></svg></div><div><div class="nm">Spořicí účet · Air Bank</div><div class="sm">•••• 0097 · úrok 0,5 %</div></div><div class="bal">85 000 Kč</div></div>
@@ -661,7 +935,7 @@
       <!-- 3c PRODUCTS -->
       <section class="screen light" id="s-products">
         <div class="grow tabpad">
-          <div class="scr-head"><h2>Produkty</h2><div class="avatar">T</div></div>
+          <div class="scr-head"><h2>Produkty</h2><div class="hgroup"><span class="planbadge" onclick="goTo('s-plans')">Free</span><div class="avatar" onclick="goTo('s-profile')">T</div></div></div>
           <p class="scr-intro">Tvé smlouvy a služby na jednom místě. Červené přeplácíš — klikni a Valuneto je vyřeší za tebe.</p>
           <div id="productsList"></div>
           <div class="subhead">Doporučeno pro tebe</div>
@@ -672,12 +946,14 @@
       <!-- 3d CASHBACK -->
       <section class="screen light" id="s-cashback">
         <div class="grow tabpad">
-          <div class="scr-head"><h2>Cashback</h2><div class="avatar">T</div></div>
+          <div class="scr-head"><h2>Cashback</h2><div class="hgroup"><span class="planbadge" onclick="goTo('s-plans')">Free</span><div class="avatar" onclick="goTo('s-profile')">T</div></div></div>
           <div class="cb-balance">
             <div class="l">Cashback k vyplacení</div>
             <div class="v" id="cbBalance">3 000 Kč</div>
+            <div class="cb-rate" id="cbRate">7,5 % zpět z produktů · Free</div>
             <button class="btn" onclick="goTo('s-rewards')">Vybrat odměnu →</button>
           </div>
+          <div class="invite-card" onclick="openInvite()"><span class="invite-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8"/><rect x="2.5" y="7.5" width="19" height="4.5" rx="1"/><path d="M12 7.5V21"/><path d="M12 7.5C12 7.5 11.2 4 9 4a2 2 0 0 0 0 3.5z"/><path d="M12 7.5C12 7.5 12.8 4 15 4a2 2 0 0 1 0 3.5z"/></svg></span><div><div class="invite-t">Pozvat přátele</div><div class="invite-s">Získej 250 Kč za každého</div></div><span class="invite-ch">›</span></div>
           <div class="cb-stat">
             <div class="box"><div class="bl">Letos vyděláno</div><div class="bv">3 980 Kč</div></div>
             <div class="box"><div class="bl">Aktivních nabídek</div><div class="bv">24</div></div>
@@ -688,13 +964,13 @@
           <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=notino.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E5007D';p.textContent='N';"></div><div><div class="nm">Notino</div><div class="sm">Parfémy a kosmetika</div></div><div class="pc">8 %</div></div>
           <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=booking.com&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#003580';p.textContent='B';"></div><div><div class="nm">Booking.com</div><div class="sm">Ubytování</div></div><div class="pc">6 %</div></div>
           <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=lidl.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#0A7F52';p.textContent='L';"></div><div><div class="nm">Lidl Plus</div><div class="sm">Týdenní nákup</div></div><div class="pc">4 %</div></div>
+          <button class="btn ghost" onclick="goTo('s-offers')" style="margin-top:8px">Zobrazit všechny nabídky →</button>
           <div class="subhead">Měsíční odměny za aktivní produkty</div>
-          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.2V11c0 4.6 3.2 7.4 7.5 8.5 4.3-1.1 7.5-3.9 7.5-8.5V5.2L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="nm">Životní pojištění</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+50 Kč/měs</div></div>
-          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-5.5A2 2 0 0 1 6.9 6h10.2a2 2 0 0 1 1.9 1.5L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H4a1 1 0 0 1-1-1z"/></svg></div><div><div class="nm">Autopojištění</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+25 Kč/měs</div></div>
-          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div><div><div class="nm">Energie</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+15 Kč/měs</div></div>
-          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></div><div><div class="nm">Mobilní tarif</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+8 Kč/měs</div></div>
-          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=portu.cz&sz=128" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='📈'"></div><div><div class="nm">Investice · Portu</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+12 Kč/měs</div></div>
-          <div class="mr-note">Za produkty, které máš přes Valuneto aktivní, ti každý měsíc připíšeme bonus navíc. <b>Celkem +110 Kč/měs</b>.</div>
+          <div id="monthlyList"></div>
+          <div class="mr-note" id="mrNote">Za produkty, které máš přes Valuneto aktivní, ti každý měsíc připíšeme bonus navíc. <b>Celkem +110 Kč/měs</b>.</div>
+          <div class="subhead">Co můžeš aktivovat navíc</div>
+          <p class="scr-intro" style="margin-top:-2px;margin-bottom:10px">Produkty, které zatím nemáš přes Valuneto. Sjednáš je rovnou v aplikaci a získáš cashback navíc.</p>
+          <div id="crosssellList"></div>
           <p class="legal" style="margin-top:16px;text-align:left">Cashback se připíše do 30 dní po nákupu přes Valuneto. Nasbíraný cashback proměníš ve vybranou odměnu.</p>
         </div>
       </section>
@@ -707,14 +983,14 @@
             <div><div class="as-name">Valuneto</div><div class="as-status">online</div></div>
           </div>
           <div class="chat" id="chatBox"></div>
-          <div class="chips">
-            <div class="chip" onclick="askAssist('Kolik ušetřím celkem letos?')">Kolik ušetřím letos?</div>
-            <div class="chip" onclick="askAssist('Přepni mi energii')">Přepni mi energii</div>
-            <div class="chip" onclick="askAssist('Jak na mě dopadá inflace?')">Jak na mě jde inflace?</div>
-            <div class="chip" onclick="askAssist('Mám si víc spořit?')">Mám si víc spořit?</div>
+          <div class="chips" id="chatChips">
+            <div class="chip" onclick="askAssist('Jak si stojím oproti minulému měsíci?')">Srovnání s minulým měsícem</div>
+            <div class="chip" onclick="askAssist('Co můžu tento měsíc zlepšit?')">Co zlepšit tento měsíc</div>
+            <div class="chip" onclick="askAssist('Kam dát 200 000 Kč?')">Kam dát 200 000 Kč?</div>
+            <div class="chip" onclick="askAssist('Vyplatí se mi teď hypotéka?')">Hypotéka teď?</div>
           </div>
           <div class="askbar">
-            <input id="chatInput" type="text" placeholder="Zeptej se na cokoliv o svých penězích…" onkeydown="if(event.key==='Enter'){askAssist(this.value); this.value='';}">
+            <input id="chatInput" type="text" onfocus="hideChips()" placeholder="Zeptej se na cokoliv o svých penězích…" onkeydown="if(event.key==='Enter'){askAssist(this.value); this.value='';}">
             <button class="send" onclick="var i=document.getElementById('chatInput'); askAssist(i.value); i.value='';">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
@@ -738,6 +1014,46 @@
         <div class="grow" style="position:relative;padding-bottom:20px" id="investBody"></div>
       </section>
 
+      <!-- PLANS -->
+      <section class="screen light" id="s-plans">
+        <div class="grow" style="padding-bottom:30px"><div id="plansList"></div></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="screen light" id="s-profile">
+        <div class="grow" style="padding-bottom:30px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <button class="onb-back" onclick="goTo('s-dash')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <h2 class="h2" style="font-size:22px">Profil</h2>
+          </div>
+          <div class="prof-card">
+            <div class="prof-av">T</div>
+            <div class="prof-id"><div class="prof-name">Tereza Nováková</div><div class="prof-mail">tereza@email.cz</div></div>
+            <span class="planbadge" onclick="goTo('s-plans')">Free</span>
+          </div>
+
+          <div class="subhead">Nastavení profilu</div>
+          <div class="set-row" onclick="editGoal()"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><span class="set-tx">Tvůj cíl</span><span class="set-val" id="profGoal">Rezerva</span><span class="set-ch">›</span></div>
+          <div class="set-row" onclick="goTo('s-onb1')"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-4 4-6 7-6s7 2 7 6"/></svg></span><span class="set-tx">Osobní profil</span><span class="set-val">Věk, situace, rodina…</span><span class="set-ch">›</span></div>
+          <div class="set-row" onclick="goTo('s-plans')"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></span><span class="set-tx">Tvůj plán</span><span class="set-val" id="profPlan">Free</span><span class="set-ch">›</span></div>
+          <div class="set-row" onclick="goTo('s-accounts')"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M3 11h18"/><circle cx="16.5" cy="15" r="1.3" fill="#16201A" stroke="none"/></svg></span><span class="set-tx">Připojené účty</span><span class="set-val">4</span><span class="set-ch">›</span></div>
+
+          <div class="subhead">Nastavení aplikace</div>
+          <div class="set-block">
+            <div class="set-label">Vzhled aplikace</div>
+            <div class="modes">
+              <button class="modeBtn sel" data-mode="light" onclick="setMode(this)"><span class="mode-prev light"></span>Světlý</button>
+              <button class="modeBtn" data-mode="dark" onclick="setMode(this)"><span class="mode-prev dark"></span>Tmavý</button>
+            </div>
+          </div>
+          <div class="set-row" onclick="this.querySelector('.toggle').classList.toggle('on')"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></span><span class="set-tx">Notifikace</span><span class="toggle on"></span></div>
+          <div class="set-row" onclick="this.querySelector('.toggle').classList.toggle('on')"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5l-8-3Z"/></svg></span><span class="set-tx">Přihlášení Face ID</span><span class="toggle on"></span></div>
+          <div class="set-row"><span class="set-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg></span><span class="set-tx">Jazyk</span><span class="set-val">Čeština</span><span class="set-ch">›</span></div>
+
+          <button class="btn ghost" style="margin-top:16px" onclick="goTo('s-welcome')">Odhlásit se</button>
+        </div>
+      </section>
+
       <!-- 4 LEAKS -->
       <section class="screen light" id="s-leaks">
         <div class="grow" style="padding-bottom:30px">
@@ -745,11 +1061,11 @@
             <button class="btn ghost" style="width:auto;padding:6px 8px 6px 0" onclick="goTo('s-dash')">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
             </button>
-            <span class="pill-top" id="leakPill">Únik peněz · 5 položek</span>
+            <span class="pill-top" id="leakPill">Únik peněz · 4 položky</span>
           </div>
           <div class="total-card" style="margin-top:14px">
             <div class="lbl" id="leakTotalLbl">Ročně zbytečně utrácíš navíc</div>
-            <div class="amt" id="leakTotal">−14 280<span class="pm">Kč/rok</span></div>
+            <div class="amt" id="leakTotal">−14 430<span class="pm">Kč/rok</span></div>
           </div>
           <div class="leaks" id="leaksList"></div>
         </div>
@@ -765,14 +1081,14 @@
             <h2 class="h2" style="font-size:22px"><span id="swTitle">Energie</span> · doporučení</h2>
           </div>
           <div class="compare">
-            <div class="cc now"><div class="t" id="swNowLbl">Teď platíš</div><div class="p" id="swNow">1 890 Kč</div><div class="pm" id="swNowUnit">měsíčně</div></div>
-            <div class="cc new"><div class="t" id="swNewLbl">Nejlevnější na trhu</div><div class="p" id="swNew">1 470 Kč</div><div class="pm" id="swNewUnit">měsíčně · stejná spotřeba</div></div>
+            <div class="cc now"><div class="t" id="swNowLbl">Teď platíš</div><div class="p" id="swNow">2 100 Kč</div><div class="pm" id="swNowUnit">měsíčně</div></div>
+            <div class="cc new"><div class="t" id="swNewLbl">Nejlevnější na trhu</div><div class="p" id="swNew">1 700 Kč</div><div class="pm" id="swNewUnit">měsíčně · stejná spotřeba</div></div>
           </div>
-          <div class="save-banner"><div class="s" id="swSaveLbl">Tvá roční úspora</div><div class="b" id="swSave">5 040 Kč / rok</div></div>
+          <div class="save-banner"><div class="s" id="swSaveLbl">Tvá roční úspora</div><div class="b" id="swSave">4 800 Kč / rok</div></div>
           <div class="feats" id="swFeats"></div>
         </div>
         <div style="padding:0 0 64px">
-          <button class="btn" id="swCta" onclick="confirmSwitch()">Aktivovat úsporu 5 040 Kč/rok</button>
+          <button class="btn" id="swCta" onclick="openArrange(currentProd)">Aktivovat úsporu 4 800 Kč/rok</button>
         </div>
       </section>
 
@@ -794,6 +1110,35 @@
         </div>
       </section>
 
+      <!-- SJEDNÁNÍ -->
+      <section class="screen light" id="s-arrange">
+        <div class="grow" style="position:relative;padding-bottom:30px" id="arrangeBody"></div>
+      </section>
+
+      <!-- KATALOG PRODUKTŮ -->
+      <section class="screen light" id="s-catalog">
+        <div class="grow" style="padding-bottom:30px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="onb-back" onclick="goTo('s-products')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <h2 class="h2" style="font-size:22px">Nabídka produktů</h2>
+          </div>
+          <p class="scr-intro" style="margin-top:0">Vyber si jakýkoliv produkt a sjednej si ho sám — porovnáme nabídky a spočítáš si vlastní modelaci.</p>
+          <div id="catalogBody"></div>
+        </div>
+      </section>
+
+      <!-- VŠECHNY NABÍDKY CASHBACK -->
+      <section class="screen light" id="s-offers">
+        <div class="grow" style="padding-bottom:30px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="onb-back" onclick="goTo('s-cashback')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <h2 class="h2" style="font-size:22px">Všechny nabídky</h2>
+          </div>
+          <p class="scr-intro" style="margin-top:0">Cashback u partnerů Valuneto. Aktivuje se nákupem přes appku.</p>
+          <div id="offersList"></div>
+        </div>
+      </section>
+
       <!-- skip confirm modal -->
       <div class="modal-bg" id="skipModal">
         <div class="modal">
@@ -805,6 +1150,45 @@
         </div>
       </div>
 
+      <!-- podpis -->
+      <div class="modal-bg" id="signModal">
+        <div class="modal" style="text-align:center">
+          <h3>Podpis</h3>
+          <p style="font-size:13px;color:var(--slate);margin:0 0 4px">Podepiš se prstem nebo myší do rámečku.</p>
+          <div id="signHint" style="font-size:12px;color:var(--coral);min-height:16px;margin-bottom:6px"></div>
+          <canvas id="signCanvas" width="320" height="160" class="sign-canvas"></canvas>
+          <button class="btn" onclick="signDone()">Hotovo</button>
+          <button class="btn ghost" style="margin-top:8px" onclick="signClear()">Vymazat</button>
+          <button class="btn ghost" style="margin-top:8px" onclick="signCancel()">Zrušit</button>
+        </div>
+      </div>
+      <!-- fotak na doklady -->
+      <div class="modal-bg" id="camModal">
+        <div class="modal" style="text-align:center">
+          <h3 style="margin-bottom:8px">Vyfoť doklad</h3>
+          <div class="cam-view" id="camView">
+            <div class="cam-id"></div>
+            <div class="cam-scan"></div>
+            <div class="cam-frame"></div>
+            <div class="cam-status" id="camStatus">Zarovnej doklad do rámečku</div>
+          </div>
+          <div class="cam-bar"><i id="camProg"></i></div>
+          <button class="btn" id="camBtn" onclick="camShoot()">Vyfotit doklad</button>
+          <button class="btn ghost" style="margin-top:8px" onclick="camClose()">Zrušit</button>
+        </div>
+      </div>
+      <!-- pozvat přátele -->
+      <div class="modal-bg" id="inviteModal">
+        <div class="modal" style="text-align:center">
+          <div class="mic" style="background:var(--ink)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8"/><rect x="2.5" y="7.5" width="19" height="4.5" rx="1"/><path d="M12 7.5V21"/><path d="M12 7.5C12 7.5 11.2 4 9 4a2 2 0 0 0 0 3.5z"/><path d="M12 7.5C12 7.5 12.8 4 15 4a2 2 0 0 1 0 3.5z"/></svg></div>
+          <h3>Pozvat přátele</h3>
+          <p>Za každého kamaráda, který si aktivuje Valuneto, získáš <b>250 Kč</b> — a on taky.</p>
+          <div class="code-box" id="inviteCode">VALU-TEREZA-250</div>
+          <button class="btn" id="inviteShareBtn" onclick="inviteShare()">Sdílet pozvánku</button>
+          <button class="btn ghost" style="margin-top:8px" onclick="inviteCopy(this)">Zkopírovat kód</button>
+          <button class="btn ghost" style="margin-top:8px" onclick="closeInvite()">Zavřít</button>
+        </div>
+      </div>
       <!-- shared bottom tab bar -->
       <div class="tabbar" id="tabbar">
         <nav class="nav">
@@ -814,7 +1198,7 @@
           <div class="item" data-tab="s-accounts" onclick="goTo('s-accounts')">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.3" fill="currentColor" stroke="none"/></svg>Účty
           </div>
-          <div class="fab" data-tab="s-assistant" onclick="goTo('s-assistant')">
+          <div class="fab" data-tab="s-assistant" onclick="toggleAssist()">
             <div class="fab-btn"><svg width="26" height="26" viewBox="0 0 24 24" fill="#05140C"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9z"/><circle cx="18.5" cy="17.5" r="1.7"/><circle cx="5.5" cy="16.5" r="1.2"/></svg></div>
             <span class="fab-lbl">Valuneto</span>
           </div>
@@ -837,14 +1221,14 @@
     <button onclick="next()">Další ›</button>
     <button onclick="goTo('s-welcome')" title="Restartovat demo">↺</button>
   </div>
-  <div class="hint">Demo se neproklikává — procházej šipkami ← → na klávesnici (nebo tlačítky ‹ Zpět / Další › níže).</div>
+  <div class="hint">Demo se neproklikává — procházej šipkami ← → na klávesnici.</div>
 </div>
 
 <script>
-  var allScreens = ['s-welcome','s-onb1','s-onb2','s-onb3','s-connect','s-analyze','s-dash','s-accounts','s-products','s-cashback','s-rewards','s-invest','s-assistant','s-leaks','s-switch','s-success'];
+  var allScreens = ['s-welcome','s-onb1','s-onb2','s-onb3','s-connect','s-analyze','s-dash','s-accounts','s-products','s-cashback','s-rewards','s-invest','s-plans','s-profile','s-assistant','s-leaks','s-switch','s-arrange','s-catalog','s-offers','s-success'];
   var order = ['s-welcome','s-connect','s-analyze','s-dash','s-leaks','s-switch','s-success'];
   var TABS = ['s-dash','s-accounts','s-assistant','s-products','s-cashback'];
-  var lightScreens = ['s-welcome','s-onb1','s-onb2','s-onb3','s-connect','s-dash','s-accounts','s-products','s-cashback','s-rewards','s-invest','s-assistant','s-leaks','s-switch'];
+  var lightScreens = ['s-welcome','s-onb1','s-onb2','s-onb3','s-connect','s-dash','s-accounts','s-products','s-cashback','s-rewards','s-invest','s-plans','s-profile','s-assistant','s-leaks','s-switch','s-arrange','s-catalog','s-offers'];
   var idx = 0;
   var analyzeTimers = [];
 
@@ -854,23 +1238,20 @@
   var CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 
   var products = {
-    energie:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>', name:'Energie', sub:'Dražší než 92 % nabídek na trhu', year:5040, unit:'měsíčně',
-      nowLbl:'Teď platíš', now:1890, newLbl:'Nejlevnější na trhu', neu:1470, newUnit:'měsíčně · stejná spotřeba',
+    energie:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>', name:'Energie', sub:'Po zlevnění energií 2026 platíš víc, než nabízí trh', year:4800, unit:'měsíčně',
+      nowLbl:'Teď platíš', now:2100, newLbl:'Nejlevnější na trhu', neu:1700, newUnit:'měsíčně · stejná spotřeba',
       feats:['Ověřený dodavatel, smlouva bez závazku','Přepis i výpověď vyřídíme za tebe','Dodávka bez přerušení, žádné papírování']},
-    ruceni:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-5.5A2 2 0 0 1 6.9 6h10.2a2 2 0 0 1 1.9 1.5L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H4a1 1 0 0 1-1-1z"/></svg>', name:'Povinné ručení', sub:'Stejné krytí jinde levněji', year:3480, unit:'ročně',
-      nowLbl:'Teď platíš', now:6480, newLbl:'Nejlevnější na trhu', neu:3000, newUnit:'ročně · stejné krytí',
+    ruceni:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-5.5A2 2 0 0 1 6.9 6h10.2a2 2 0 0 1 1.9 1.5L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H4a1 1 0 0 1-1-1z"/></svg>', name:'Povinné ručení', sub:'Průměr trhu je ~4 600 Kč/rok — platíš víc', year:2700, unit:'ročně',
+      nowLbl:'Teď platíš', now:5900, newLbl:'Nejlevnější na trhu', neu:3200, newUnit:'ročně · stejné krytí',
       feats:['Stejné limity plnění i připojištění','Bez sankce — využijeme výročí smlouvy','Sjednáme online za tebe, stačí podpis']},
-    mobil:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>', name:'Mobilní tarif', sub:'Platíš za data, která nevyužiješ', year:2760, unit:'měsíčně',
-      nowLbl:'Teď platíš', now:749, newLbl:'Tarif na míru', neu:519, newUnit:'měsíčně · dle tvého využití',
+    mobil:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>', name:'Mobilní tarif', sub:'Platíš za data, která nevyužiješ', year:3600, unit:'měsíčně',
+      nowLbl:'Teď platíš', now:699, newLbl:'Tarif na míru', neu:399, newUnit:'měsíčně · dle tvého využití',
       feats:['Stejné pokrytí, telefonní číslo si necháš','Data i volání dle reálné spotřeby','Přenos čísla zařídíme do 4 dnů']},
-    banka:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3.5 7H20.5L12 3Z"/><path d="M5 10v7M9.5 10v7M14.5 10v7M19 10v7"/><path d="M3.5 20.5h17"/></svg>', name:'Bankovní poplatky', sub:'Účet zdarma pokryje vše stejně', year:1800, unit:'měsíčně',
-      nowLbl:'Teď platíš', now:150, newLbl:'Účet zdarma', neu:0, newUnit:'měsíčně · stejné funkce',
-      feats:['Zachováš si platby, karty i trvalé příkazy','Žádné poplatky za vedení ani výběry','Převod účtu vyřídíme za tebe']},
-    sporeni:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6.5" rx="6.5" ry="2.8"/><path d="M5.5 6.5v5c0 1.5 2.9 2.8 6.5 2.8s6.5-1.3 6.5-2.8v-5"/><path d="M5.5 11.5v5c0 1.5 2.9 2.8 6.5 2.8s6.5-1.3 6.5-2.8v-5"/></svg>', name:'Spořicí účet', sub:'Úrok 0,5 % vs. 5,0 % jinde', year:1200, unit:'měsíčně', gain:true,
-      nowLbl:'Teď ti nese', now:35, newLbl:'Mohlo by nést', neu:135, newUnit:'měsíčně · při 5,0 % p.a.',
+    sporeni:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6.5" rx="6.5" ry="2.8"/><path d="M5.5 6.5v5c0 1.5 2.9 2.8 6.5 2.8s6.5-1.3 6.5-2.8v-5"/><path d="M5.5 11.5v5c0 1.5 2.9 2.8 6.5 2.8s6.5-1.3 6.5-2.8v-5"/></svg>', name:'Spořicí účet', sub:'Leží na účtu s 0,1 % — spořák dnes nese 3,8 %', year:3330, unit:'měsíčně', gain:true,
+      nowLbl:'Teď ti nese', now:8, newLbl:'Mohlo by nést', neu:285, newUnit:'měsíčně · při 3,8 % p.a.',
       feats:['Garantovaný úrok, peníze kdykoliv k dispozici','Pojištěno do 100 000 € ze zákona','Převod nastavíme jedním klikem']}
   };
-  var prodOrder = ['energie','ruceni','mobil','banka','sporeni'];
+  var prodOrder = ['energie','ruceni','mobil','sporeni'];
   var switched = {};
   var currentProd = 'energie';
 
@@ -909,7 +1290,13 @@
     if(id==='s-products'){ renderProducts(); renderExtras(); }
     if(id==='s-rewards') renderRewards();
     if(id==='s-invest') renderInvest();
-    if(id==='s-cashback') updateRewardBalance();
+    if(id==='s-plans'){ plansView='home'; renderPlans(); }
+    if(id==='s-profile') renderProfile();
+    if(id==='s-cashback'){ updateRewardBalance(); renderCrosssell(); }
+    if(id==='s-arrange') renderArrange();
+    if(id==='s-assistant') assistOpen();
+    if(id==='s-catalog') renderCatalog();
+    if(id==='s-offers') renderOffers();
     if(id==='s-success') renderSuccess();
     if(id==='s-switch') fillSwitch(currentProd||'energie');
   }
@@ -919,11 +1306,8 @@
     if(e.key==='ArrowRight') next();
     if(e.key==='ArrowLeft') prev();
   });
-  // ---- demo se neproklikava: blokuj klik-navigaci uvnitr telefonu (sipky + scroll funguji dal) ----
-  (function(){
-    var ph=document.querySelector('.phone');
-    if(ph){ ph.addEventListener('click', function(e){ e.stopPropagation(); e.preventDefault(); }, true); }
-  })();
+  // ---- demo se neproklikava: blokuj klik-navigaci uvnitr telefonu (sipky + scroll funguji) ----
+  (function(){ var ph=document.querySelector('.phone'); if(ph){ ph.addEventListener('click', function(e){ e.stopPropagation(); e.preventDefault(); }, true); } })();
 
   function payout(btn){ btn.textContent='Odesláno na účet ✓'; btn.style.background='var(--deep)'; btn.style.color='var(--paper)'; }
 
@@ -947,8 +1331,10 @@
     document.getElementById('leakTotalLbl').textContent = c>0 ? 'Ročně zbytečně utrácíš navíc' : 'Všechny úniky peněz vyřešeny';
   }
 
+  function openCatalog(){ goTo('s-catalog'); }
+  function catalogCTA(){ return '<div class="prow" onclick="openCatalog()" style="margin:2px 0 14px;border:1.5px dashed var(--line);background:transparent;cursor:pointer"><div class="ic" style="background:var(--net)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div><div><div class="nm">Sjednat nový produkt</div><div class="sm">Projdi celou nabídku produktů</div></div><div class="pright"><span style="color:var(--slate);font-size:22px;line-height:1">›</span></div></div>'; }
   function renderProducts(){
-    var list=document.getElementById('productsList'); list.innerHTML='';
+    var list=document.getElementById('productsList'); list.innerHTML=catalogCTA();
     prodOrder.forEach(function(k){
       var p=products[k], done=isDone(k);
       var row=document.createElement('div');
@@ -991,7 +1377,7 @@
     var rem=document.getElementById('succRemain');
     rem.innerHTML = c>0
       ? ('Zbývá '+c+' '+plural(c,'úspora','úspory','úspor')+' v celkové hodnotě <b style="color:var(--paper)">'+fmt(remainingSum())+'/rok</b>. Valuneto hlídá tvé výdaje dál a samo upozorní, když se objeví nová.')
-      : ('Vyřešil jsi <b style="color:var(--paper)">všech 5 úniků peněz</b>. Valuneto teď hlídá tvé výdaje dál a upozorní, jakmile se objeví nová příležitost.');
+      : ('Vyřešil jsi <b style="color:var(--paper)">všech '+prodOrder.length+' úniků peněz</b>. Valuneto teď hlídá tvé výdaje dál a upozorní, jakmile se objeví nová příležitost.');
   }
 
   function updateDashAlert(){
@@ -1043,22 +1429,83 @@
   function addBub(box, who, text){
     var b=document.createElement('div'); b.className='bub '+who; b.innerHTML=text; box.appendChild(b);
   }
+  var lastTopic=null;
+  var VALUNETO_AI=null; /* PRODUKCE: nastav na URL svého backendu (který volá LLM server-side) a chat poběží přes reálnou AI. V demu = chytrý lokální rádce. */
+  function _norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+  function _num(s){ var m=String(s||'').replace(/\s/g,'').match(/\d{3,}/g); if(!m) return 0; m.sort(function(a,b){return b.length-a.length;}); return parseInt(m[0],10); }
+  function _fmtk(n){ return Math.round(n).toLocaleString('cs-CZ')+' Kč'; }
   function assistReply(q){
-    q=(q||'').toLowerCase();
-    if(q.indexOf('inflac')>=0) return 'Při inflaci ti reálnou hodnotu nejvíc ujídá <b>spořicí účet s úrokem 0,5 %</b>. Přesun na 5 % p.a. ti vrátí přes <b>1 200 Kč ročně</b>.';
-    if(q.indexOf('spoř')>=0 || q.indexOf('spor')>=0) return 'Máš 85 000 Kč na účtu s 0,5 %. Nech si 3 výplaty jako rezervu a zbytek dej na 5 % p.a. — rozdíl je <b>+1 200 Kč/rok</b> bez rizika.';
-    if(q.indexOf('energi')>=0 || q.indexOf('přepni')>=0 || q.indexOf('prepni')>=0) return 'Jdu na to. Přepis energie vyřídím za tebe — ušetříš <b>5 040 Kč ročně</b>. Otevři Produkty a potvrď jedním klikem.';
-    if(q.indexOf('ušetř')>=0 || q.indexOf('usetr')>=0 || q.indexOf('letos')>=0) return 'Když přepneš všech 5 položek, ušetříš <b>14 280 Kč</b> za rok. Nejrychlejší výhry: energie (5 040) a povinné ručení (3 480).';
-    return 'Mrkni na záložku <b>Produkty</b> — seřadil jsem ti úspory od největší. Klikni na kteroukoliv a přepnutí vyřídím za tebe.';
+    var t=_norm(q), amt=_num(q), p=profile||{};
+    var leak=(typeof remainingSum==='function')?remainingSum():0;
+    if(/\b(ahoj|cau|cus|cao|dobry|dobre|zdar|hello|hi|nazdar)\b/.test(t)){ lastTopic=null; return 'Ahoj! Jsem Valuneto, tvůj finanční rádce. Poradím se spořením, investicemi, hypotékou, pojištěním, dluhy i rozpočtem. Klidně mi zadej i částku — třeba „kam dát 200 000 Kč". Co řešíš?'; }
+    if(/(dik|diky|dekuj|super|parada|thanks|thx)/.test(t)) return 'Není zač! Kdyby cokoliv dalšího kolem peněz, ptej se.';
+    if(/(co umis|co dokaz|napoved|help|pomoc|s cim|co vsechno)/.test(t)) return 'Poradím ti se: spořením a rezervou, investicemi do ETF, hypotékou a refinancováním, pojištěním (auto, život, domácnost), splácením dluhů, penzí (DIP) i rozpočtem. Zkus třeba „mám 250 000, kam s tím?" nebo „vyplatí se refinancovat hypotéku?".';
+    if(/(jak si stoj|oproti minul|minul[a-z]* mes|srovn[a-z]* mes|jak na tom jsem)/.test(t)){ lastTopic='srovnani'; return 'Tento měsíc jsi utratil <b>24 800 Kč</b> — o <b>18 % méně</b> než minulý měsíc (30 200 Kč). Nejvíc jsi ušetřil na jídle a zábavě a čisté jmění ti přitom vzrostlo o <b>4,5 %</b>. Chceš tip, co s ušetřenými penězi?'; }
+    if(/(zlepsit|doporuceni|nejak[a-z]* tip|dej.{0,6}tip|tip na (tento )?mesic|co.{0,8}tento mesic)/.test(t)){ lastTopic='alokace'; return 'Tip na tento měsíc: utratil jsi <b>o 20 % méně</b> než obvykle, takže ti zbývá ~<b>5 000 Kč</b> navíc. Navrhuju je rozdělit — <b>3 000 Kč</b> na spořák (3,8 % p.a.) a <b>2 000 Kč</b> do ETF (~6 % p.a.). Mám ti to připravit?'; }
+    if(/inflac/.test(t)){ lastTopic='inflace'; return 'Inflace ti nejvíc ujídá peníze ležící skoro bez úroku na běžném účtu. Rezervu drž na spořáku s <b>3,8 % p.a.</b>, dlouhodobé peníze ve <b>vyváženém ETF</b> (~6 % p.a.), které inflaci historicky překonává. Chceš spočítat konkrétní částku?'; }
+    if(/(hypot|refinanc|refix|fixac)/.test(t)){
+      lastTopic='hypoteka';
+      if(amt>=100000){ var i=0.0459/12, n=300, m=amt*i/(1-Math.pow(1+i,-n)); return 'Na '+_fmtk(amt)+' při 4,59 % p.a. a fixaci na 25 let je splátka ~<b>'+_fmtk(m)+'/měs</b> (modelově, ČSOB). Sazby teď drží kolem 4,6–5,0 %. Chceš porovnat nabídky bank a sjednat?'; }
+      return 'Sazby hypoték jsou teď kolem <b>4,6–5,0 % p.a.</b> (ČSOB ~4,59 %). Když ti končí fixace nebo platíš přes 5 %, vyplatí se refixovat/refinancovat — porovnám ti banky. Jakou máš výši úvěru a sazbu teď?';
+    }
+    if(/(povinn|ruceni)/.test(t) || (/aut/.test(t)&&/pojist/.test(t))){ lastTopic='auto'; return 'Průměr trhu u povinného ručení je ~<b>4 600 Kč/rok</b>. Když platíš víc, skoro jistě přeplácíš — porovnám ti pojišťovny (Direct, ČSOB Pojišťovna, Allianz) a sjednám levnější se stejným krytím. Kolik platíš teď?'; }
+    if(/zivot/.test(t)&&/pojist/.test(t)){ lastTopic='zivot'; return 'Životní pojištění má krýt hlavně <b>výpadek příjmu</b> (invalidita, vážné nemoci, smrt živitele) — ne spořit. Sjednej rozumnou pojistnou částku a spoření řeš zvlášť investicemi. Je někdo závislý na tvém příjmu?'; }
+    if(/(domacnost|nemovitost)/.test(t)&&/pojist/.test(t)){ lastTopic='domacnost'; return 'Pojištění domácnosti/nemovitosti se vyplatí už od ~180 Kč/měs — kryje živel, vodu, odcizení i odpovědnost. Porovnám ti pojišťovny a sjednáš online. Chceš nabídku?'; }
+    if(/pojist/.test(t)){ lastTopic='pojisteni'; return 'Pojištění beru jako ochranu proti tomu, co tě finančně položí (auto, příjem, bydlení) — ne jako spoření. Co konkrétně řešíš: auto, život, nebo domácnost?'; }
+    if(/(dluh|pujck|uver|splatk|konsolid|exekuc|kreditk|kontokor)/.test(t)){ lastTopic='dluhy'; return 'Nejdřív splať drahé dluhy (kreditky, kontokorent — často 20 %+), teprve pak investuj. Víc půjček se vyplatí <b>konsolidovat</b> do jedné s nižším úrokem a jednou splátkou. Kolik měsíčně splácíš a kolik máš různých půjček?'; }
+    if(/(penz|duchod|dip|renta|stari)/.test(t)){ lastTopic='penze'; return 'Na penzi je nejvýhodnější <b>DIP / penzijní spoření</b> — daňová úspora až 7 200 Kč/rok plus často příspěvek zaměstnavatele. Máš-li do důchodu 10+ let, investuj dynamičtěji. Chceš si nastavit měsíční částku?'; }
+    if(/(investic|investov|etf|portu|akcie|fond|zhodnot)/.test(t)){
+      lastTopic='investice';
+      var strat=['konzervativní (~3,5 % p.a.)','vyvážené (~6 % p.a.)','dynamické (~9 % p.a.)'][typeof riskReco==='function'?riskReco():1];
+      if(amt>=1000){ var v10=amt*Math.pow(1.06,10); return 'Podle tvého profilu sedí <b>'+strat+'</b>. Z jednorázových '+_fmtk(amt)+' by při ~6 % p.a. za 10 let mohlo být ~<b>'+_fmtk(v10)+'</b> (přes ETF portfolio na Portu). Pozor — výnos kolísá a není zaručený.'; }
+      return 'Doporučená strategie podle tvého profilu: <b>'+strat+'</b>, široce diverzifikované ETF přes Portu. Investuj jen peníze, které nebudeš 5+ let potřebovat. Kolik bys chtěl vložit měsíčně nebo jednorázově?';
+    }
+    if(/(spor|sporak|sporic|rezerv|nouzov)/.test(t)){
+      lastTopic='sporeni';
+      if(amt>=1000){ var ur=Math.round(amt*0.038); return 'Z '+_fmtk(amt)+' na spořáku s 3,8 % p.a. máš ~<b>'+_fmtk(ur)+'/rok</b> navíc. Nejlepší teď: ČSOB Spoření s bonusem 3,80 % nebo Raiffeisenbank 4,00 %. Rezervu drž ve výši 3–6 měsíčních výdajů, zbytek zhodnocuj.'; }
+      return 'Rezervu drž ve výši <b>3–6 měsíčních výdajů</b> na spořáku — teď dává ČSOB 3,80 % (s bonusem) nebo Raiffeisenbank 4,00 %. Co máš nad rezervu, nech pracovat v investicích. Kolik chceš odkládat měsíčně?';
+    }
+    if(amt>=1000 && /(kam|co s|co delat|uloz|zhodnot|prebyt|naspor|voln|navic|dat)/.test(t)){
+      lastTopic='alokace';
+      var rez=Math.min(amt, 60000), zbytek=Math.max(0, amt-rez), za10=zbytek*Math.pow(1.06,10), sp=Math.round(rez*0.038);
+      return 'Z '+_fmtk(amt)+' bych udělal dvě věci: <b>'+_fmtk(rez)+'</b> nech jako rezervu na spořáku s 3,8 % p.a. (~'+_fmtk(sp)+'/rok)'+(zbytek>0?(' a zbylých <b>'+_fmtk(zbytek)+'</b> dej do vyváženého ETF (~6 % p.a. → za 10 let ~'+_fmtk(za10)+')'):'')+'. Investice ale kolísá a není bez rizika.';
+    }
+    if(/(rozpoc|utrac|setrit|vydaj|kam mi miz)/.test(t)){ lastTopic='rozpocet'; return 'Funguje pravidlo <b>50/30/20</b>: 50 % nezbytné, 30 % chtěné, 20 % spoření a investice. Navíc ti hlídám zbytečné výdaje — teď vidím úniky za <b>'+_fmtk(leak)+'/rok</b>, které umím přepnout za tebe. Chceš je projít?'; }
+    if(/(cashback|odmen|bonus|kesbek)/.test(t)) return 'Za produkty a nákupy přes Valuneto ti vracíme cashback (Free 7,5 %, Premium 20 % z produktů) a měsíční bonusy. Nasbírané proměníš ve vybranou odměnu v záložce Cashback.';
+    if(/(tarif|premium|predplatn|kolik stoji valuneto|plan)/.test(t)) return 'Free je zdarma (základ + 7,5 % cashback), Plus 149 Kč/měs (hlídače, neomezené účty, 15 %), Premium 499 Kč/měs (rodinný účet, 20 %, poradce). Plus se ti typicky zaplatí z první vyřešené úspory.';
+    if(/(usetr|uniky|kolik.*letos)/.test(t)){ lastTopic='uspory'; return 'Když vyřešíš všechny nalezené úniky, ušetříš <b>'+_fmtk(leak)+'/rok</b>. Největší položky: energie a povinné ručení. Mám je přepnout za tebe?'; }
+    if(t.length<=14 && lastTopic && /(kolik|proc|a co|vic|jak|jo|ano|dal)/.test(t)){
+      if(lastTopic==='alokace'||lastTopic==='investice') return 'Konkrétně: rezervu na spořák 3,8 %, zbytek do vyváženého ETF ~6 % p.a. přes Portu. Napiš částku a spočítám ti to přesně.';
+      if(lastTopic==='hypoteka') return 'Pošli mi výši úvěru a sazbu, kterou máš teď — porovnám ji s aktuálními 4,6–5,0 % a řeknu, jestli se refinancování vyplatí.';
+      if(lastTopic==='sporeni') return 'Nejvyšší úrok teď: Raiffeisenbank 4,00 % (s podmínkami), bez podmínek ~3,2–3,7 %. Kolik chceš uložit?';
+      if(lastTopic==='srovnani') return 'Z ušetřených ~5 000 Kč navrhuju 3 000 Kč na spořák (3,8 %) a 2 000 Kč do ETF (~6 % p.a.). Sjednáš si to sám v Produkty → Nabídka produktů.';
+    }
+    var cil={rezerva:'budování rezervy',dluhy:'splacení dluhů',investice:'budování majetku',nakup:'velký nákup'}[p.goal];
+    return 'Beru to jako finanční dotaz'+(cil?(' a vím, že tvůj cíl je '+cil):'')+'. Upřesni mi prosím — jde o spoření, investice, hypotéku, pojištění, dluhy nebo rozpočet? Klidně přidej částku a spočítám ti konkrétní čísla.';
   }
+  function toggleAssist(){ var on=document.getElementById('s-assistant'); goTo(on && on.classList.contains('active') ? 's-dash' : 's-assistant'); }
+  function hideChips(){ var c=document.getElementById('chatChips'); if(c) c.style.display='none'; }
+  function assistOpen(){ var c=document.getElementById('chatChips'), box=document.getElementById('chatBox'); if(c) c.style.display=(box && box.children.length)?'none':'flex'; }
+  function topicToProduct(t){ return ({hypoteka:'xs_hypoteka',auto:'ruceni',zivot:'xs_zivot',domacnost:'xs_domacnost',investice:'xs_invest',alokace:'xs_invest',inflace:'xs_invest',penze:'xs_penze',sporeni:'sporeni',dluhy:'xs_uver'})[t]||null; }
+  function ctaOpen(el){ openArrange(el.getAttribute('data-pid')); }
   function askAssist(q){
     if(!q || !q.trim()) return;
-    var box=document.getElementById('chatBox');
+    var box=document.getElementById('chatBox'); if(!box) return;
     addBub(box,'me',q);
     var grow=box.parentElement; grow.scrollTop=grow.scrollHeight;
-    setTimeout(function(){ addBub(box,'ai',assistReply(q)); grow.scrollTop=grow.scrollHeight; }, 420);
+    var typing=document.createElement('div'); typing.className='bub ai typing'; typing.innerHTML='<span></span><span></span><span></span>'; box.appendChild(typing); grow.scrollTop=grow.scrollHeight;
+    function done(txt){ if(typing.parentElement) box.removeChild(typing); var _p=topicToProduct(lastTopic); if(_p && arrCat[_p]) txt+='<div class="ai-cta-wrap">Chceš vidět podrobné možnosti?<br><button class="ai-cta" data-pid="'+_p+'" onclick="ctaOpen(this)">Podrobné možnosti: '+arrCat[_p].name+' →</button></div>'; addBub(box,'ai',txt); grow.scrollTop=grow.scrollHeight; }
+    if(VALUNETO_AI){
+      try{
+        fetch(VALUNETO_AI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,profile:profile})})
+          .then(function(r){ return r.json(); }).then(function(d){ done((d&&d.reply)||assistReply(q)); })
+          .catch(function(){ done(assistReply(q)); });
+      }catch(e){ done(assistReply(q)); }
+    } else {
+      setTimeout(function(){ done(assistReply(q)); }, 460);
+    }
   }
-
+  /*ADV_END*/
   var rewards=[
     {key:'cestovni', ic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v-2l-8-4.5V4a1.5 1.5 0 0 0-3 0v4.5L2 13v2l8-2v4l-2 1.5V20l3.5-1 3.5 1v-1.5L13 17v-4z"/></svg>', name:'Cestovní pojištění na rok', val:1500, sub:'Krytí po celém světě, zdarma'},
     {key:'plus', ic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-1.8 10H4.8z"/><path d="M4 21h16"/></svg>', name:'Valuneto Plus na rok', val:1788, sub:'Prémiové funkce bez poplatků'},
@@ -1118,7 +1565,7 @@
     };
     var c=cfg[profile.goal];
     if(c){ b.style.display='flex'; document.getElementById('persoTitle').textContent=c.t; b.querySelector('.perso-ic').innerHTML=c.s; }
-    else { b.style.display='none'; }
+    else { b.style.display='flex'; document.getElementById('persoTitle').textContent='Nastav si cíl'; b.querySelector('.perso-ic').innerHTML='🎯'; }
   }
 
   function renderExtras(){
@@ -1141,7 +1588,8 @@
       var ic = it.logo
         ? '<div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain='+it.logo+'&sz=128" referrerpolicy="no-referrer" data-fb="📈" onerror="this.parentElement.textContent=this.dataset.fb"></div>'
         : '<div class="ic">'+it.e+'</div>';
-      return '<div class="prow static">'+ic+'<div><div class="nm">'+it.n+'</div><div class="sm">'+it.s+'</div></div><div class="pright"><span class="tag '+it.t+'">'+it.tag+'</span></div></div>';
+      var aid=(typeof arrMapByName!=='undefined')?arrMapByName[it.n]:null;
+      return '<div class="prow'+(aid?'':' static')+'"'+(aid?(' onclick="openArrange(\''+aid+'\')"'):'')+'>'+ic+'<div><div class="nm">'+it.n+'</div><div class="sm">'+it.s+'</div></div><div class="pright"><span class="tag '+it.t+'">'+it.tag+'</span>'+(aid?CHEV:'')+'</div></div>';
     }).join('');
   }
 
@@ -1198,6 +1646,590 @@
   var rewardBalance=3000;
   function updateRewardBalance(){ var e=document.getElementById('cbBalance'); if(e) e.textContent=fmt(rewardBalance); }
 
+  var plans={
+    free:{ name:'Free', cashbackRate:'7,5 %', ai:'3 dotazy / měs', color:'#6B756E', bg:'#EFF1ED' },
+    plus:{ name:'Plus', cashbackRate:'15 %', ai:'AI bez limitu', color:'#0A7F52', bg:'#EAF7F0' },
+    premium:{ name:'Premium', cashbackRate:'20 %', ai:'AI bez limitu', color:'#9A7B2E', bg:'#FBF3E2' }
+  };
+  var planData={
+    free:{ n:'Free', pr:'Zdarma', tag:'Pro začátek zdarma', reco:false,
+      main:['2 propojené účty','Detekce předplatných','Cashback 7,5 % z produktů'],
+      more:['Měsíční přehled výdajů','3 AI dotazy měsíčně'] },
+    plus:{ n:'Plus', pr:'149 Kč/měs', tag:'Zaplatí se sám', reco:true,
+      main:['Neomezené účty + celá domácnost','Cashback 15 % z produktů','Valuneto AI bez limitu'],
+      more:['Hlídače: zdražení, konec fixace, výročí, duplicity','Kill-switch: výpovědi vyřídíme za tebe','Roční finanční prohlídka s reportem'] },
+    premium:{ n:'Premium', pr:'499 Kč/měs', tag:'Rodinný CFO', reco:false,
+      main:['Rodinný účet pro 4 osoby','Concierge: vyřídíme to za tebe','Cashback 20 % z produktů + VIP sazby'],
+      more:['Hypotéka watchdog: refixace a vyjednání','Valuneto AI bez limitu','Kvartální poradce + daňové přiznání'] }
+  };
+  var planOrder=['free','plus','premium'];
+  var plan='free';
+  function applyPlan(p){
+    plan=p; var cfg=plans[p];
+    Array.prototype.slice.call(document.querySelectorAll('.planbadge')).forEach(function(b){ b.textContent=cfg.name; b.style.background=cfg.bg; b.style.color=cfg.color; });
+    var r=document.getElementById('cbRate'); if(r) r.textContent=cfg.cashbackRate+' zpět z produktů · '+cfg.name;
+    var as=document.querySelector('#s-assistant .as-status'); if(as) as.textContent=cfg.name+' · '+cfg.ai;
+    var up=document.getElementById('upsell');
+    if(up){
+      if(p==='premium'){ up.style.display='none'; }
+      else { up.style.display='flex';
+        var t=document.getElementById('upTitle'), s=document.getElementById('upSub');
+        if(p==='free'){ t.textContent='Přejdi na Plus'; s.textContent='Hlídače, neomezené účty, 15 % cashback'; }
+        else { t.textContent='Přejdi na Premium'; s.textContent='Rodinný účet pro 4, daňové přiznání, poradce'; }
+      }
+    }
+    renderMonthly();
+  }
+  function switchPlan(el){ applyPlan(el.dataset.plan); goTo('s-dash'); }
+  function planStep(el){ var c=el.querySelector('.plan-card'); return c?(c.offsetWidth+14):el.clientWidth; }
+  var plansView='home', planTab=null;
+  var ICON_GEM='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12l3 5-9 12L3 8z"/></svg>';
+  var ICON_GEMB='<svg width="22" height="22" viewBox="0 0 24 24" fill="#0A7F52"><path d="M6 3h12l3 5-9 12L3 8z"/></svg>';
+  var ICON_PLANS='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="5" rx="1.5"/><rect x="3" y="12" width="18" height="5" rx="1.5"/></svg>';
+  function plansExit(){ goTo('s-dash'); }
+  function plansHome(){ plansView='home'; renderPlans(); }
+  function upsellGo(){ var ci=planOrder.indexOf(plan), t=planOrder[ci+1]; goTo('s-plans'); if(t){ plansView='upgrade'; planTab=t; renderPlans(); } }
+  function openUpgrade(){ plansView='upgrade'; var ci=planOrder.indexOf(plan); planTab=planOrder[ci+1]||null; renderPlans(); }
+  function openAllPlans(){ plansView='all'; planTab=plan; renderPlans(); }
+  function planTabClick(el){ planTab=el.getAttribute('data-tier'); renderPlans(); }
+  function phFeats(arr){ return arr.map(function(f){ return '<li><span class="ck">'+CK+'</span>'+f+'</li>'; }).join(''); }
+  function phBar(title, rightAll){
+    return '<div class="up-bar"><button class="up-x" onclick="plansHome()">✕</button><span class="up-title">'+title+'</span>'
+      +(rightAll?'<button class="up-pill" onclick="openAllPlans()">Plány</button>':'<button class="up-pill" onclick="openUpgrade()">'+ICON_GEM+' Upgradovat</button>')+'</div>';
+  }
+  var ICON_COIN='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.6 9.5h3.1a1.6 1.6 0 0 1 0 3.2H10a1.6 1.6 0 0 0 0 3.2h3.1"/></svg>';
+  var ICON_SPARK='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.7 4.7L18 8l-4.3 1.3L12 14l-1.7-4.7L6 8l4.3-1.3z"/><circle cx="18.5" cy="17.5" r="1.4"/></svg>';
+  var ICON_USERS='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.1"/><path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/><path d="M16 5.2a3.1 3.1 0 0 1 0 6M21 20c0-2.6-1.4-4.3-3.5-5"/></svg>';
+  var ICON_BELL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>';
+  var ICON_BOLT='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>';
+  var ICON_DOC='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h8L19 7v14.5H6z"/><path d="M14 2.5V7h5M9 12h6M9 16h6"/></svg>';
+  var ICON_CHK='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+  function featIcon(f){ var t=(f||'').toLowerCase();
+    if(/cashback|zpět|vip sazb|% z prod/.test(t)) return ICON_COIN;
+    if(/ ai|asistent|valuneto ai/.test(t)) return ICON_SPARK;
+    if(/účt|domácnost|rodin|osob|člen/.test(t)) return ICON_USERS;
+    if(/hlídač|zdraž|fixac|výroč|duplicit|watchdog|hypoték|refix/.test(t)) return ICON_BELL;
+    if(/výpověď|kill|concierge|vyřídíme/.test(t)) return ICON_BOLT;
+    if(/report|přehled|prohlídk|daň|poradce|kvartál/.test(t)) return ICON_DOC;
+    return ICON_CHK; }
+  var planTheme={
+    free:{ grad:'linear-gradient(140deg,#F3F6F1,#E4E9E2)', tx:'#0C140F', accent:'#0A7F52', dark:false },
+    plus:{ grad:'linear-gradient(140deg,#06160E,#0A7F52)', tx:'#FFFFFF', accent:'#34E68C', dark:true },
+    premium:{ grad:'linear-gradient(140deg,#171206,#8C6E2A)', tx:'#FFFFFF', accent:'#E7C383', dark:true }
+  };
+  function phCard(t){
+    var d=planData[t], th=planTheme[t]||planTheme.free, cur=(t===plan);
+    function row(f,i,cls){ return '<li class="'+cls+'" style="animation-delay:'+(0.06+i*0.06).toFixed(2)+'s"><span class="up-fi">'+featIcon(f)+'</span>'+f+'</li>'; }
+    var main=d.main.map(function(f,i){ return row(f,i,'key'); }).join('');
+    var more=d.more.map(function(f,i){ return row(f,d.main.length+i,'more'); }).join('');
+    return '<div class="up-card'+(th.dark?' dk':'')+'" style="background:'+th.grad+';color:'+th.tx+'">'
+      +'<div class="up-cardimg" style="background:'+th.accent+'"><span class="up-shine"></span></div>'
+      +'<div class="up-cname">'+d.n+'</div>'
+      +'<div class="up-cprice" style="color:'+th.tx+'">'+d.pr+'</div>'
+      +'<div class="up-ctag" style="color:'+th.accent+'">'+(d.tag||'')+'</div>'
+      +'<ul class="up-feats" style="--fi:'+th.accent+'">'+main+more+'</ul></div>'
+      +(cur?'<button class="btn ghost" disabled style="opacity:.6">Tvůj aktuální plán</button>'
+           :'<button class="btn" data-plan="'+t+'" onclick="switchPlan(this)">Připojit se k '+d.n+'</button>');
+  }
+  function phHome(){
+    var d=planData[plan], cfg=plans[plan];
+    var sub = (plan==='free') ? 'Zdarma · bez závazku' : 'Obnoví se 20. 7. 2026';
+    return '<div class="up-bar"><button class="up-x" onclick="plansExit()">‹</button><span class="up-title">Předplatné</span><button class="up-pill" onclick="openUpgrade()">'+ICON_GEM+' Upgradovat</button></div>'
+      +'<div class="up-homehead"><div class="up-hname" style="color:'+cfg.color+'">'+d.n+'</div><div class="up-hsub">'+sub+'</div></div>'
+      +'<div class="up-actions"><button class="up-act" onclick="openAllPlans()"><span class="up-acti">'+ICON_PLANS+'</span>Plány</button><button class="up-act" onclick="openUpgrade()"><span class="up-acti">'+ICON_GEMB+'</span>Upgradovat</button></div>'
+      +'<div class="subhead">Co máš v plánu</div><ul class="up-feats">'+phFeats(d.main)+'</ul>';
+  }
+  function renderPlans(){
+    var el=document.getElementById('plansList'); if(!el) return;
+    var ci=planOrder.indexOf(plan);
+    if(plansView==='home'){ el.innerHTML=phHome(); return; }
+    var all=(plansView==='all');
+    var tiers = all ? planOrder.slice() : planOrder.filter(function(k,i){ return i>=ci; });
+    if(!all && tiers.length<=1){ el.innerHTML=phBar('Upgrade plánu', false)+'<div class="plans-msg">'+ICON_GEMB+'<br>Jsi na nejvyšším plánu <b>'+planData[plan].n+'</b>.<br>Užíváš všechny funkce Valuneto.</div>'; return; }
+    if(!planTab || tiers.indexOf(planTab)<0) planTab = all ? plan : tiers[1];
+    var tabs='<div class="up-tabs">'+tiers.map(function(k){
+      var isCur=(k===plan), sel=(k===planTab);
+      return '<button class="up-tab'+(sel?' on':'')+(isCur?' cur':'')+'" data-tier="'+k+'" onclick="planTabClick(this)">'+planData[k].n+'</button>';
+    }).join('')+'</div>';
+    el.innerHTML = phBar(all?'Plány':'Upgrade plánu', !all) + tabs + phCard(planTab);
+  }
+    var SH_='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">';
+  var monthly=[
+    {ic:SH_+'<path d="M12 2.5 4.5 5.2V11c0 4.6 3.2 7.4 7.5 8.5 4.3-1.1 7.5-3.9 7.5-8.5V5.2L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg>', n:'Životní pojištění', base:50},
+    {ic:SH_+'<path d="M3 13l2-5.5A2 2 0 0 1 6.9 6h10.2a2 2 0 0 1 1.9 1.5L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H4a1 1 0 0 1-1-1z"/></svg>', n:'Autopojištění', base:25},
+    {ic:SH_+'<path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>', n:'Energie', base:15},
+    {ic:SH_+'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>', n:'Mobilní tarif', base:8},
+    {logo:'portu.cz', n:'Investice · Portu', base:12}
+  ];
+  var planMul={ free:0.5, plus:1, premium:1.3333 };
+  function renderMonthly(){
+    var el=document.getElementById('monthlyList'); if(!el) return;
+    var mul=planMul[plan]||1, total=0;
+    el.innerHTML=monthly.map(function(m){
+      var amt=Math.round(m.base*mul); total+=amt;
+      var ic = m.logo
+        ? '<div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain='+m.logo+'&sz=128" referrerpolicy="no-referrer" data-fb="📈" onerror="this.parentElement.textContent=this.dataset.fb"></div>'
+        : '<div class="lg mtile">'+m.ic+'</div>';
+      return '<div class="offer">'+ic+'<div><div class="nm">'+m.n+'</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+'+amt+' Kč/měs</div></div>';
+    }).join('');
+    var note=document.getElementById('mrNote');
+    if(note) note.innerHTML='Za produkty, které máš přes Valuneto aktivní, ti každý měsíc připíšeme bonus navíc. <b>Celkem +'+total+' Kč/měs</b>.';
+  }
+  function applyMode(m){
+    var w=document.querySelector('.screenwrap'); if(w) w.classList.toggle('dark', m==='dark');
+    Array.prototype.slice.call(document.querySelectorAll('.modeBtn')).forEach(function(b){ b.classList.toggle('sel', b.getAttribute('data-mode')===m); });
+  }
+  function setMode(el){ applyMode(el.getAttribute('data-mode')); }
+  applyPlan(plan);
+
+  function renderProfile(){
+    var g={rezerva:'Rezerva',dluhy:'Splatit dluhy',investice:'Investovat',nakup:'Velký nákup'}[profile.goal]||'—';
+    var pg=document.getElementById('profGoal'); if(pg) pg.textContent=g;
+    var pp=document.getElementById('profPlan'); if(pp) pp.textContent=plans[plan].name;
+  }
+
+  /* ================= SJEDNÁVÁNÍ produktů (3 varianty + plné sjednání) ================= */
+  var HOUSE_=SH_+'<path d="M3.5 11 12 3.5 20.5 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></svg>';
+  var GROWTH_=SH_+'<path d="M3 17l6-6 4 4 7-7"/><path d="M16 8h5v5"/></svg>';
+  var SHIELD_=SH_+'<path d="M12 2.5 4.5 5.2V11c0 4.6 3.2 7.4 7.5 8.5 4.3-1.1 7.5-3.9 7.5-8.5V5.2L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg>';
+  var COIN_=SH_+'<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9.6 9.4h3.1a1.8 1.8 0 0 1 0 3.6H10a1.8 1.8 0 0 0 0 3.4h3.2"/></svg>';
+
+  function riskVars(){
+    return [
+      {n:'Konzervativní', p:'~3,5 % p.a.', d:'Převaha dluhopisů, nízké kolísání', f:['Nízké riziko ztráty','Stabilní zhodnocení','Peníze kdykoliv k dispozici']},
+      {n:'Vyvážené', p:'~6 % p.a.', d:'Akcie a dluhopisy v poměru 60/40', f:['Vyvážený poměr výnos/riziko','Globální diverzifikace','Vhodné na 5+ let']},
+      {n:'Dynamické', p:'~9 % p.a.', d:'Převaha akcií a ETF', f:['Nejvyšší výnosový potenciál','Vyšší krátkodobé kolísání','Vhodné na 7+ let']}
+    ];
+  }
+  function riskReco(){
+    var p=profile||{};
+    if(p.family==='deti' || p.job==='rodicovska') return 0;
+    if((p.age==='18-24'||p.age==='25-34') && p.goal==='investice') return 2;
+    return 1;
+  }
+
+  var arrCat = {
+    /* --- produkty s "únikem" (mají i porovnání na s-switch) --- */
+    ruceni:{ name:'Povinné ručení', type:'poj', cb:'+250 Kč', leak:true,
+      intro:'Porovnali jsme pojišťovny na trhu. Vyber si nabídku, vše sjednáš online.',
+      vars:[
+        {n:'Direct pojišťovna', logo:'direct.cz', p:'3 200 Kč/rok', d:'Low cost · povinné ručení, limit 50/50 mil. Kč', f:['Zákonné krytí škod','Asistenční služba 24/7','Online správa smlouvy']},
+        {n:'ČSOB Pojišťovna', logo:'csobpojistovna.cz', p:'4 600 Kč/rok', d:'Standard · PR + asistence, střet se zvěří a živel', f:['Krytí střetu, živlu a vandalismu','Úraz řidiče','Odtah a náhradní vozidlo'], badge:true},
+        {n:'Allianz', logo:'allianz.cz', p:'9 900 Kč/rok', d:'Premium · PR + havarijní pojištění (all-risk)', f:['Plné havarijní krytí bez spoluúčasti','Pojištění skel a zavazadel','Náhradní vůz po celou dobu opravy']}
+      ]},
+    energie:{ name:'Energie', type:'gen', cb:'+300 Kč', leak:true,
+      intro:'Porovnali jsme dodavatele. Přepis i výpověď u starého dodavatele vyřídíme za tebe.',
+      vars:[
+        {n:'MND', logo:'mnd.cz', p:'~1 590 Kč/měs', d:'Spot · spotová cena, bez fixace', f:['Nejnižší cena při klesajícím trhu','Bez závazku, výpověď kdykoliv','Měsíční vyúčtování']},
+        {n:'ČEZ', logo:'cez.cz', p:'1 690 Kč/měs', d:'Fix · fixní cena na 2 roky', f:['Jistota ceny na 24 měsíců','Ochrana proti zdražení','Bez poplatku za sjednání'], badge:true},
+        {n:'E.ON', logo:'eon.cz', p:'1 790 Kč/měs', d:'Zelená · 100 % obnovitelné + fix na 3 roky', f:['Certifikát původu energie','Fixace na 36 měsíců','Uhlíkově neutrální dodávka']}
+      ]},
+    mobil:{ name:'Mobilní tarif', type:'gen', cb:'+150 Kč', leak:true,
+      intro:'Porovnali jsme operátory. Číslo si necháš, přenos zařídíme za tebe.',
+      vars:[
+        {n:'O2', logo:'o2.cz', p:'249 Kč/měs', d:'Low cost · neomezená data, 15 Mb/s', f:['Neomezené volání a SMS','Neomezená data při 15 Mb/s','Bez závazku']},
+        {n:'Vodafone', logo:'vodafone.cz', p:'399 Kč/měs', d:'Standard · neomezená data, 40 Mb/s', f:['Neomezená data při 40 Mb/s','Neomezené volání v EU','5G síť v ceně'], badge:true},
+        {n:'T-Mobile', logo:'t-mobile.cz', p:'599 Kč/měs', d:'Premium · neomezená data, plná 5G', f:['Neomezená data bez FUP','Prémiové 5G+ pokrytí','Roaming mimo EU v ceně']}
+      ]},
+    sporeni:{ name:'Spořicí účet', type:'gen', cb:'+400 Kč', leak:true, referral:true,
+      intro:'Porovnali jsme spořicí účty na trhu. Vyber si ten, který ti sedí.',
+      vars:[
+        {n:'ČSOB', logo:'csob.cz', rate:'3,80 %', p:'do 250 000 Kč', d:'Spoření s bonusem · doporučujeme', f:['Bonusová sazba 3,80 % do 250 tis. Kč','Podmínka: 5 plateb kartou + 1 500 Kč/měs do investic','Peníze kdykoliv k dispozici, bez výpovědi'], badge:true},
+        {n:'Raiffeisenbank', logo:'rb.cz', rate:'4,00 %', p:'do 500 000 Kč', d:'Nejvyšší úrok na trhu · 10 plateb kartou/měs', f:['Nejvyšší sazba na trhu','Bonusový úrok do 500 tis. Kč','Podmínka: 10 plateb kartou měsíčně']},
+        {n:'Partners Banka', logo:'partnersbanka.cz', rate:'3,20 %', p:'bez limitu', d:'Bez podmínek a bez limitu', f:['Sazba bez jakýchkoliv podmínek','Bez limitu výše vkladu','Žádné platby kartou navíc']}
+      ]},
+
+    /* --- cross-sell: produkty, které user zatím nemá --- */
+    xs_invest:{ name:'Pravidelné investice', type:'inv', cb:'+900 Kč', xs:true, amountSel:true, when:function(p){ return true; },
+      sub:'Investuj do ETF, sám si zvolíš kolik a jak často',
+      intro:'Investice vedeme přes Portu. Navol si částku a strategii — spustíš hned v aplikaci.', vars:null },
+    xs_hypoteka:{ name:'Hypotéka', type:'hyp', cb:'+5 000 Kč', xs:true, when:function(p){ return p.job!=='rodicovska'; },
+      sub:'Porovnáme sazby bank a sjednáme tu nejvýhodnější',
+      intro:'Modelová nabídka pro 3,5 mil. Kč na 25 let. Seřazeno dle výhodnosti.',
+      vars:[
+        {n:'ČSOB', logo:'csob.cz', rate:'4,59 %', p:'19 630 Kč/měs', d:'Fixace 5 let · vedení úvěru zdarma', f:['Online sjednání bez návštěvy pobočky','Mimořádné splátky a refixace zdarma','Sleva za vedení účtu u ČSOB'], badge:true},
+        {n:'Česká spořitelna', logo:'csas.cz', rate:'4,79 %', p:'20 040 Kč/měs', d:'Fixace 5 let', f:['Bonus za aktivní využívání účtu','Hypotéka i na družstevní byt','Konzultace na pobočce']},
+        {n:'Komerční banka', logo:'kb.cz', rate:'4,99 %', p:'20 440 Kč/měs', d:'Fixace 5 let', f:['Sleva za pojištění schopnosti splácet','Možnost odkladu splátek','Garance sazby na 30 dní']}
+      ]},
+    xs_penze:{ name:'Penzijní spoření (DIP)', type:'inv', cb:'+1 200 Kč', xs:true, amountSel:true, when:function(p){ return true; },
+      sub:'Daňová úspora až 7 200 Kč ročně + příspěvek zaměstnavatele',
+      intro:'Vedeme přes ČSOB Penzijní společnost. Navol si částku a strategii.', vars:null },
+    xs_domacnost:{ name:'Pojištění domácnosti', type:'poj', cb:'+600 Kč', xs:true, when:function(p){ return true; },
+      sub:'Vybavení, odpovědnost i živel — od 180 Kč/měs',
+      intro:'Porovnali jsme pojišťovny. Sjednáš online během pár minut.',
+      vars:[
+        {n:'Direct pojišťovna', logo:'direct.cz', p:'180 Kč/měs', d:'Low cost · krytí vybavení do 500 tis. Kč', f:['Živel a odcizení','Odpovědnost za škodu','Asistence při havárii']},
+        {n:'ČSOB Pojišťovna', logo:'csobpojistovna.cz', p:'290 Kč/měs', d:'Standard · vyšší limity + vodovodní škody', f:['Krytí do 1,5 mil. Kč','Vodovodní škody','Sklo a elektronika'], badge:true},
+        {n:'Allianz', logo:'allianz.cz', p:'420 Kč/měs', d:'Premium · all-risk včetně cenných věcí', f:['Krytí bez podpojištění','Cennosti a jízdní kola','Náklady na náhradní bydlení']}
+      ]},
+    xs_zivot:{ name:'Životní pojištění', type:'poj', cb:'+800 Kč', xs:true, when:function(p){ return true; },
+      sub:'Ochrana příjmu pro tebe i rodinu',
+      intro:'Porovnali jsme pojišťovny. Sjednáš online, bez vstupní prohlídky do limitu.',
+      vars:[
+        {n:'NN', logo:'nn.cz', p:'290 Kč/měs', d:'Low cost · smrt + trvalé následky úrazu', f:['Krytí pro případ smrti','Trvalé následky úrazu','Bez zkoumání zdraví do limitu']},
+        {n:'ČSOB Pojišťovna', logo:'csobpojistovna.cz', p:'480 Kč/měs', d:'Standard · + invalidita a vážné nemoci', f:['Invalidita 1.–3. stupně','30 vážných onemocnění','Zproštění od placení'], badge:true},
+        {n:'Allianz', logo:'allianz.cz', p:'720 Kč/měs', d:'Premium · plná ochrana příjmu rodiny', f:['Nejvyšší pojistné částky','Pracovní neschopnost od 15. dne','Připojištění dětí v ceně']}
+      ]},
+    xs_detske:{ name:'Dětské spoření', type:'inv', cb:'+500 Kč', xs:true, amountSel:true, when:function(p){ return true; },
+      sub:'Odkládej na budoucnost dětí',
+      intro:'Investice vedeme přes Portu. Navol si částku a strategii.', vars:null },
+    xs_uver:{ name:'Refinancování půjčky', type:'gen', cb:'+1 500 Kč', xs:true, when:function(p){ return true; },
+      sub:'Sjednoť splátky a sniž úrok — spočítáme úsporu',
+      intro:'Porovnali jsme banky. Vyber si variantu, vše vyřídíme online.',
+      vars:[
+        {n:'Air Bank', logo:'airbank.cz', p:'2 900 Kč/měs', d:'Nejnižší splátka · delší doba splácení', f:['Splatnost až 8 let','Nejnižší měsíční splátka','Bez poplatku za sjednání']},
+        {n:'ČSOB', logo:'csob.cz', p:'3 600 Kč/měs', d:'Vyvážené · optimální poměr doby a úroku', f:['Splatnost 5 let','Sazba od 7,9 % p.a.','Předčasné splacení zdarma'], badge:true},
+        {n:'Komerční banka', logo:'kb.cz', p:'4 800 Kč/měs', d:'Nejméně přeplatíš · kratší doba splácení', f:['Splatnost 3 roky','Nejnižší celkový přeplatek','Sazba od 6,9 % p.a.']}
+      ]}
+  };
+  var arrMapByName={ 'Hypotéka':'xs_hypoteka', 'Životní pojištění':'xs_zivot', 'Dětské spoření':'xs_detske', 'Konsolidace půjček':'xs_uver' };
+
+  function arrVars(c){
+    if(c.type==='inv' && !c.vars){ var v=riskVars(); v[riskReco()].badge=true; return v; }
+    return c.vars;
+  }
+  var arrState={ id:null, type:null, vi:0, step:0 };
+  function openArrange(id){
+    var c=arrCat[id]; if(!c) return;
+    var vars=arrVars(c), def=0;
+    for(var i=0;i<vars.length;i++){ if(vars[i].badge){ def=i; break; } }
+    arrState={ id:id, type:c.type, vi:def, step:0, freq:'mes', amt:1000, years:10, loan:3500000, term:25 };
+    goTo('s-arrange');
+  }
+  function arrSelVar(i){ arrState.vi=i; renderArrange(); }
+  function arrNext(){ arrState.step++; renderArrange(); }
+  function arrBack(){
+    if(arrState.step>0 && arrState.step<4){ arrState.step--; renderArrange(); }
+    else { var c=arrCat[arrState.id]; goTo(c && c.leak ? 's-switch' : 's-cashback'); }
+  }
+  function arrFinish(){ var c=arrCat[arrState.id]; goTo(c && c.leak ? 's-leaks' : 's-cashback'); }
+  function arrUpl(el){ el.classList.add('up'); var b=el.querySelector('.u-btn'); if(b) b.textContent='Nahráno ✓'; }
+  function arrSign(el){ el.classList.add('signed'); el.innerHTML='<svg width="160" height="58" viewBox="0 0 160 58" fill="none" stroke="#0A7F52" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 42c10-28 17-27 19-6s8 19 14-3 12-15 16 2 9 9 18-15 23-9 15 15 27 5"/></svg>'; }
+  function arrStepper(active){
+    var labels=['Varianta','Údaje','Doklady','Podpis'];
+    return '<div class="arr-steps">'+labels.map(function(l,i){
+      return '<div class="arr-st'+(i===active?' on':'')+(i<active?' done':'')+'"><span class="arr-stn">'+(i<active?CK:(i+1))+'</span>'+l+'</div>';
+    }).join('')+'</div>';
+  }
+  function renderArrange(){
+    var c=arrCat[arrState.id]; if(!c) return;
+    var b=document.getElementById('arrangeBody'); if(!b) return;
+    var vars=arrVars(c);
+    if(arrState.step===4){ renderArrDone(b,c,vars[arrState.vi]); return; }
+    var head='<div style="display:flex;align-items:center;gap:8px">'
+      +'<button class="onb-back" onclick="arrBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>'
+      +'<h2 class="h2" style="font-size:20px">'+c.name+'</h2></div>';
+    if(c.referral){ renderArrReferral(b,c,vars,head); return; }
+    var html=head+arrStepper(arrState.step);
+
+    if(arrState.step===0){
+      html+='<p class="scr-intro" style="margin-top:0">'+(c.intro||'Vyber si variantu, která ti sedí. Sjednáš ji rovnou v aplikaci.')+'</p>';
+      if(c.amountSel){ html+=arrAmountSelector(c,vars); html+='<div class="onb-label" style="margin:2px 0 8px">Zvol strategii</div>'; }
+      html+=vars.map(arrVarCard).join('');
+      if(c.type==='inv' && !c.amountSel) html+='<div class="invest-note" style="margin-top:2px">Investice podléhá riziku ztráty. Minulé výnosy nejsou zárukou budoucích.</div>';
+      html+='<button class="btn" style="margin-top:18px" onclick="arrNext()">Pokračovat</button>';
+      html+='<p class="arr-manual">Předvybráno podle tvého profilu — <span class="lnk" onclick="arrManual(this)">zadej si vlastní částky a spočítej si modelaci</span></p>';
+    }
+    else if(arrState.step===1){
+      var hyp=(c.type==='hyp');
+      html+='<p class="scr-intro" style="margin-top:0">Údaje máme předvyplněné z tvého profilu. Zkontroluj je.</p>';
+      html+='<div class="arr-field"><label>Jméno a příjmení</label><input value="Tereza Nováková"></div>';
+      html+='<div class="arr-row2"><div class="arr-field"><label>Datum narození</label><input value="12. 4. 1992"></div><div class="arr-field"><label>Telefon</label><input value="+420 776 123 456"></div></div>';
+      html+='<div class="arr-field"><label>Trvalá adresa</label><input value="Korunní 1012, Praha 2"></div>';
+      html+='<div class="arr-field"><label>E-mail</label><input value="tereza@email.cz"></div>';
+      html+='<div class="arr-field"><label>Čistý měsíční příjem</label><input value="38 000 Kč"></div>';
+      if(hyp) html+='<div class="arr-row2"><div class="arr-field"><label>Výše úvěru</label><input value="'+(arrState.loan||3500000).toLocaleString("cs-CZ")+' Kč"></div><div class="arr-field"><label>Hodnota nemovitosti</label><input value="4 400 000 Kč"></div></div>';
+      html+='<button class="btn" style="margin-top:6px" onclick="arrNext()">Pokračovat</button>';
+    }
+    else if(arrState.step===2){
+      html+='<p class="scr-intro" style="margin-top:0">Nahraj doklady k ověření. Jsou šifrované a slouží jen ke sjednání.</p>';
+      var UPI='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg>';
+      var docs=[['Občanský průkaz','Vyfoť přední a zadní stranu',true],['Doložení příjmu','Vyfoť výpis nebo potvrzení',true]];
+      if(c.type==='hyp'){ docs.push(['Odhad nemovitosti','Zajistí odhadce online',false]); docs.push(['List vlastnictví','Stáhneme z katastru za tebe',false]); }
+      html+=docs.map(function(d){
+        return '<div class="arr-upl" onclick="'+(d[2]?'arrCam(this)':'arrUpl(this)')+'"><span class="u-ic">'+UPI+'</span><div><div class="nm" style="font-size:14px;font-weight:700">'+d[0]+'</div><div class="sm" style="font-size:12px;color:var(--slate)">'+d[1]+'</div></div><button class="u-btn">'+(d[2]?'Vyfotit':'Nahrát')+'</button></div>';
+      }).join('');
+      html+='<button class="btn" style="margin-top:12px" onclick="arrNext()">Pokračovat</button>';
+    }
+    else if(arrState.step===3){
+      arrState.signed=false;
+      var v=vars[arrState.vi];
+      var rows='<div class="r"><span>Produkt</span><b>'+c.name+'</b></div>';
+      if(c.amountSel){
+        var fr=(arrState.freq==='mes'?'Kč měsíčně':'Kč jednorázově');
+        var est=arrProject(arrState.amt, arrState.freq, arrRate(v), arrState.years);
+        rows+='<div class="r"><span>Strategie</span><b>'+v.n+'</b></div>';
+        rows+='<div class="r"><span>Vklad</span><b>'+arrState.amt.toLocaleString('cs-CZ')+' '+fr+'</b></div>';
+        rows+='<div class="r"><span>Doba</span><b>'+arrState.years+' let</b></div>';
+        rows+='<div class="r"><span>Odhad za '+arrState.years+' let</span><b>~'+est.toLocaleString('cs-CZ')+' Kč</b></div>';
+      } else if(c.type==='hyp'){
+        var mm=computeMortgage(arrState.loan, arrState.term, arrRate(v));
+        rows+='<div class="r"><span>Banka</span><b>'+v.n+'</b></div>';
+        rows+='<div class="r"><span>Úvěr</span><b>'+arrState.loan.toLocaleString('cs-CZ')+' Kč · '+arrState.term+' let</b></div>';
+        rows+='<div class="r"><span>Sazba a splátka</span><b>'+v.rate+' p.a. · '+mm.toLocaleString('cs-CZ')+' Kč/měs</b></div>';
+      } else {
+        rows+='<div class="r"><span>Poskytovatel</span><b>'+v.n+'</b></div>';
+        rows+='<div class="r"><span>Cena</span><b>'+v.p+'</b></div>';
+      }
+      rows+='<div class="r"><span>Cashback od Valuneto</span><b style="color:var(--deep)">'+c.cb+'</b></div>';
+      html+='<p class="scr-intro" style="margin-top:0">Zkontroluj souhrn a podepiš smlouvu přímo v aplikaci.</p>';
+      html+='<div class="arr-sum">'+rows+'</div>';
+      html+='<div class="arr-sign" id="arrSignBox" onclick="openSign()">✍️ Klepni sem a podepiš</div>';
+      html+='<div class="arr-consent" onclick="this.classList.toggle(\'on\')"><span class="arr-cbx">'+CK+'</span><span>Souhlasím se smluvními podmínkami, sazebníkem a zpracováním osobních údajů pro účely sjednání.</span></div>';
+      html+='<button class="btn" onclick="arrTrySubmit()">Sjednat v aplikaci</button>';
+      html+='<div class="arr-gate" id="arrGate"></div>';
+    }
+    b.innerHTML=html;
+  }
+  function arrVarCard(v,i){
+    var sel=(i===arrState.vi), ctype=(arrCat[arrState.id]||{}).type;
+    var logo = v.logo
+      ? '<span class="var-logo"><img src="https://www.google.com/s2/favicons?domain='+v.logo+'&sz=128" referrerpolicy="no-referrer" data-fb="'+v.n.charAt(0)+'" onerror="this.parentElement.textContent=this.dataset.fb"></span>'
+      : '';
+    var badge = v.badge ? '<span class="var-badge">Doporučujeme</span>' : '';
+    var sub;
+    if(ctype==='hyp'){ var mm=computeMortgage(arrState.loan||3500000, arrState.term||25, arrRate(v)); sub='<b>'+v.rate+' p.a.</b> · '+mm.toLocaleString('cs-CZ')+' Kč/měs'; }
+    else sub = v.rate ? ('<b>'+v.rate+' p.a.</b> · '+v.p) : ('<b>'+v.p+'</b>');
+    var feats = v.f.map(function(f){ return '<li><span class="ck">'+CK+'</span>'+f+'</li>'; }).join('');
+    return '<div class="var-card'+(sel?' sel':'')+'" onclick="arrSelVar('+i+')">'+badge
+      +'<div class="var-head">'+logo+'<span class="var-name">'+v.n+'</span>'+(sel?('<span class="var-tick">'+CK+'</span>'):'')+'</div>'
+      +'<div class="var-sub">'+sub+'</div>'
+      +'<div class="var-desc">'+v.d+'</div>'
+      +'<ul class="var-feats">'+feats+'</ul></div>';
+  }
+  function renderArrReferral(b,c,vars,head){
+    var v=vars[arrState.vi], url='https://www.'+v.logo;
+    var html=head;
+    html+='<p class="scr-intro" style="margin-top:0">'+(c.intro||'Porovnali jsme nabídky na trhu.')+'</p>';
+    html+=vars.map(arrVarCard).join('');
+    html+='<a class="btn" href="'+url+'" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:18px">Otevřít účet na webu '+v.n+' →</a>';
+    html+='<p class="arr-manual" style="margin-top:12px">Spořicí účet si otevřeš přímo u banky. Valuneto účty jen porovnává — <b>nic u nás nesjednáváš</b>.</p>';
+    b.innerHTML=html;
+  }
+  function arrAmountSelector(c,vars){
+    var freq=arrState.freq, amt=arrState.amt, yrs=arrState.years||10;
+    var pres = (freq==='mes') ? [500,1000,2500,5000] : [10000,25000,50000,100000];
+    if(!amt || amt<=0){ amt=pres[1]; arrState.amt=amt; }
+    var fb='<div class="amt-freq">'
+      +'<button class="amt-fb'+(freq==='mes'?' on':'')+'" onclick="arrSetFreq(\'mes\')">Měsíčně</button>'
+      +'<button class="amt-fb'+(freq==='jed'?' on':'')+'" onclick="arrSetFreq(\'jed\')">Jednorázově</button>'
+    +'</div>';
+    var chips='<div class="amt-chips">'+pres.map(function(x){
+      return '<button class="amt-chip'+(x===amt?' on':'')+'" onclick="arrSetAmt('+x+')">'+x.toLocaleString('cs-CZ')+' Kč</button>';
+    }).join('')+'</div>';
+    var v=vars[arrState.vi], r=arrRate(v), proj=arrProject(amt,freq,r,yrs);
+    var note='<div class="amt-proj">Při strategii <b>'+v.n.toLowerCase()+'</b> ('+v.p+') by z toho za '+yrs+' let mohlo být <b>~'+proj.toLocaleString('cs-CZ')+' Kč</b>.<span>Pouze modelově. Minulé výnosy nejsou zárukou budoucích, investice podléhá riziku ztráty.</span></div>';
+    return '<div class="onb-label" style="margin-bottom:8px">Kolik chceš investovat?</div>'+fb+chips+note;
+  }
+  function arrRate(v){ var s=v.rate||v.p||''; var m=String(s).match(/([0-9]+(?:[.,][0-9]+)?)\s*%/); return m?(parseFloat(m[1].replace(',','.'))/100):0.06; }
+  function arrProject(amt,freq,r,years){
+    var y=years||10;
+    if(freq==='mes'){ var i=r/12, n=y*12; return Math.round(amt*((Math.pow(1+i,n)-1)/i)); }
+    return Math.round(amt*Math.pow(1+r,y));
+  }
+  function computeMortgage(loan,term,r){ var i=r/12, n=term*12; return Math.round(loan*i/(1-Math.pow(1+i,-n))); }
+  function arrSetFreq(f){ arrState.freq=f; arrState.amt=(f==='mes'?1000:25000); renderArrange(); }
+  function arrSetAmt(x){ arrState.amt=x; renderArrange(); }
+  /*ENG_END*/
+  function arrManual(el){
+    var c=arrCat[arrState.id], p=el.parentElement;
+    var inner='<div class="manual-box"><div class="manual-h">Vlastní modelace</div>';
+    if(c.amountSel){
+      inner+='<div class="arr-row2"><div class="arr-field"><label>Částka ('+(arrState.freq==='mes'?'Kč/měs':'Kč jednoráz.')+')</label><input id="manAmt" type="number" inputmode="numeric" value="'+arrState.amt+'" oninput="arrRecalc()"></div><div class="arr-field"><label>Doba (let)</label><input id="manYears" type="number" inputmode="numeric" value="'+(arrState.years||10)+'" oninput="arrRecalc()"></div></div>';
+    } else if(c.type==='hyp'){
+      inner+='<div class="arr-row2"><div class="arr-field"><label>Výše úvěru (Kč)</label><input id="manLoan" type="number" inputmode="numeric" value="'+(arrState.loan||3500000)+'" oninput="arrRecalc()"></div><div class="arr-field"><label>Doba (let)</label><input id="manTerm" type="number" inputmode="numeric" value="'+(arrState.term||25)+'" oninput="arrRecalc()"></div></div>';
+    } else {
+      var vv=arrVars(c)[arrState.vi], unit=/rok/.test(String(vv.p))?'Kč/rok':'Kč/měs';
+      inner+='<div class="arr-field" style="margin-bottom:8px"><label>Kolik platíš teď ('+unit+')</label><input id="manNow" type="number" inputmode="numeric" oninput="arrRecalc()" placeholder="Zadej částku"></div>';
+    }
+    inner+='<div class="manual-out" id="arrManualOut"></div>';
+    if(c.amountSel || c.type==='hyp') inner+='<button class="btn" style="margin-top:4px" onclick="arrApply()">Použít hodnoty</button>';
+    inner+='<div class="manual-note">Celý výpočet si řídíš sám — bez čekání na poradce.</div></div>';
+    p.innerHTML=inner;
+    arrRecalc();
+  }
+  function arrRecalc(){
+    var out=document.getElementById('arrManualOut'); if(!out) return;
+    var c=arrCat[arrState.id], v=arrVars(c)[arrState.vi];
+    function val(id){ var e=document.getElementById(id); return e?parseInt(String(e.value).replace(/[^0-9]/g,''),10):0; }
+    if(c.amountSel){
+      var a=val('manAmt'), y=val('manYears')||arrState.years||10; if(!a){ out.innerHTML=''; return; }
+      var vlozeno=(arrState.freq==='mes')?(a*y*12):a;
+      var fv=arrProject(a, arrState.freq, arrRate(v), y), vynos=fv-vlozeno;
+      out.innerHTML='<div class="mo-row"><span>Celkem vložíš</span><b>'+vlozeno.toLocaleString('cs-CZ')+' Kč</b></div>'
+        +'<div class="mo-row"><span>Odhad za '+y+' let</span><b>~'+fv.toLocaleString('cs-CZ')+' Kč</b></div>'
+        +'<div class="mo-row"><span>Z toho výnos</span><b style="color:var(--deep)">+'+vynos.toLocaleString('cs-CZ')+' Kč</b></div>';
+    } else if(c.type==='hyp'){
+      var loan=val('manLoan'), term=val('manTerm'); if(!loan||!term){ out.innerHTML=''; return; }
+      var m=computeMortgage(loan,term,arrRate(v)), total=m*term*12, over=total-loan;
+      out.innerHTML='<div class="mo-row"><span>Měsíční splátka · '+v.n+'</span><b>'+m.toLocaleString('cs-CZ')+' Kč</b></div>'
+        +'<div class="mo-row"><span>Celkem zaplatíš</span><b>'+total.toLocaleString('cs-CZ')+' Kč</b></div>'
+        +'<div class="mo-row"><span>Přeplatek</span><b>'+over.toLocaleString('cs-CZ')+' Kč</b></div>';
+    } else {
+      var now=val('manNow'); if(!now){ out.innerHTML=''; return; }
+      var price=parseInt(String(v.p).replace(/[^0-9]/g,''),10)||0, save=now-price, unit=/rok/.test(String(v.p))?'/rok':'/měs';
+      out.innerHTML='<div class="mo-row"><span>Platíš teď</span><b>'+now.toLocaleString('cs-CZ')+' Kč'+unit+'</b></div>'
+        +'<div class="mo-row"><span>'+v.n+'</span><b>'+price.toLocaleString('cs-CZ')+' Kč'+unit+'</b></div>'
+        +'<div class="mo-row"><span>Tvá úspora</span><b style="color:'+(save>0?'var(--deep)':'var(--coral)')+'">'+(save>0?'+':'')+save.toLocaleString('cs-CZ')+' Kč'+unit+'</b></div>';
+    }
+  }
+  function arrApply(){
+    var c=arrCat[arrState.id];
+    function val(id){ var e=document.getElementById(id); return e?parseInt(String(e.value).replace(/[^0-9]/g,''),10):0; }
+    if(c.amountSel){ var a=val('manAmt'), y=val('manYears'); if(a>0) arrState.amt=a; if(y>0) arrState.years=y; }
+    else if(c.type==='hyp'){ var l=val('manLoan'), tm=val('manTerm'); if(l>0) arrState.loan=l; if(tm>0) arrState.term=tm; }
+    renderArrange();
+  }
+  /*MAN_END*/
+  function arrComplete(){
+    var c=arrCat[arrState.id];
+    var n=parseInt(String(c.cb).replace(/[^0-9]/g,''),10)||0;
+    rewardBalance+=n; updateRewardBalance();
+    if(c.leak) switched[arrState.id]=true;
+    arrState.step=4; renderArrange();
+  }
+  function renderArrDone(b,c,v){
+    var extra = c.amountSel ? (' · '+arrState.amt.toLocaleString('cs-CZ')+(arrState.freq==='mes'?' Kč/měs':' Kč')) : '';
+    b.innerHTML=''
+      +'<div class="conf-wrap" id="confWrap"></div>'
+      +'<div style="display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:6;padding-top:18px">'
+        +'<div class="checkwrap"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>'
+        +'<h2 style="font-size:23px;margin-top:20px">Sjednáno! 🎉</h2>'
+        +'<p class="rwd-intro" style="margin-top:6px">'+c.name+' · '+v.n+extra+' je aktivní. Smlouvu i potvrzení najdeš v e-mailu.</p>'
+        +'<div style="background:var(--ink);color:var(--paper);border-radius:16px;padding:16px 20px;margin-top:18px;width:100%;box-sizing:border-box"><div style="font-size:12px;opacity:.7">Připsali jsme ti do cashbacku</div><div style="font-size:27px;font-weight:800;color:var(--net);margin-top:2px">'+c.cb+'</div></div>'
+        +'<button class="btn" style="margin-top:22px;width:100%" onclick="arrFinish()">'+(c.leak?'Pokračovat v úsporách →':'Zpět na cashback')+'</button>'
+        +'<button class="btn ghost" style="margin-top:8px;width:100%" onclick="goTo(\'s-dash\')">Zpět na přehled</button>'
+      +'</div>';
+    setTimeout(launchConfetti, 60);
+  }
+  function csIcon(c){ return c.type==='hyp'?HOUSE_:(c.type==='inv'?GROWTH_:(c.type==='poj'?SHIELD_:COIN_)); }
+  function renderCrosssell(){
+    var el=document.getElementById('crosssellList'); if(!el) return;
+    var ids=['xs_invest','xs_hypoteka','xs_penze','xs_domacnost','xs_uver'];
+    el.innerHTML=ids.filter(function(id){ var c=arrCat[id]; return c && (!c.when || c.when(profile||{})); }).map(function(id){
+      var c=arrCat[id];
+      return '<div class="prow" onclick="openArrange(\''+id+'\')"><div class="ic">'+csIcon(c)+'</div><div><div class="nm">'+c.name+'</div><div class="sm">'+(c.sub||'')+'</div></div><div class="pright"><span class="tag ok">'+c.cb+'</span>'+CHEV+'</div></div>';
+    }).join('');
+  }
+
+  var CATS=[
+    {t:'Pojištění', ids:['ruceni','xs_zivot','xs_domacnost']},
+    {t:'Investice a spoření', ids:['xs_invest','xs_penze','xs_detske','sporeni']},
+    {t:'Úvěry a bydlení', ids:['xs_hypoteka','xs_uver']},
+    {t:'Energie a telco', ids:['energie','mobil']}
+  ];
+  var CATSUB={ ruceni:'Porovnáme pojišťovny a sjednáme levněji', energie:'Najdeme levnějšího dodavatele', mobil:'Tarif na míru tvé spotřebě', sporeni:'Porovnání spořicích účtů na trhu' };
+  function catIcon(id,c){
+    if(id==='energie') return SH_+'<path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>';
+    if(id==='mobil') return SH_+'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>';
+    return csIcon(c);
+  }
+  function renderCatalog(){
+    var el=document.getElementById('catalogBody'); if(!el) return;
+    el.innerHTML=CATS.map(function(cat){
+      var rows=cat.ids.filter(function(id){ var c=arrCat[id]; return c && (!c.when || c.when(profile||{})); }).map(function(id){
+        var c=arrCat[id];
+        var tag = c.referral ? '<span class="tag neutral">Porovnat</span>' : '<span class="tag ok">'+c.cb+'</span>';
+        var sub = c.sub || CATSUB[id] || '';
+        return '<div class="prow" onclick="openArrange(\''+id+'\')"><div class="ic">'+catIcon(id,c)+'</div><div><div class="nm">'+c.name+'</div><div class="sm">'+sub+'</div></div><div class="pright">'+tag+CHEV+'</div></div>';
+      }).join('');
+      return rows ? ('<div class="subhead">'+cat.t+'</div>'+rows) : '';
+    }).join('');
+  }
+  /*CAT_END*/
+  function arrTrySubmit(){
+    var consent=!!document.querySelector('.arr-consent.on'), g=document.getElementById('arrGate');
+    if(!arrState.signed){ if(g) g.textContent='Nejdřív se podepiš do políčka.'; return; }
+    if(!consent){ if(g) g.textContent='Zaškrtni souhlas se smluvními podmínkami.'; return; }
+    if(g) g.textContent=''; arrComplete();
+  }
+  var _sctx,_sdraw=false,_sink=false,_slast=null;
+  function _sxy(e){ var c=document.getElementById('signCanvas'),r=c.getBoundingClientRect(); return {x:(e.clientX-r.left)*(c.width/r.width),y:(e.clientY-r.top)*(c.height/r.height)}; }
+  function openSign(){
+    var m=document.getElementById('signModal'); if(!m) return; m.classList.add('show');
+    var hint=document.getElementById('signHint'); if(hint) hint.textContent='';
+    var c=document.getElementById('signCanvas'); _sctx=c.getContext('2d');
+    _sctx.fillStyle='#fff'; _sctx.fillRect(0,0,c.width,c.height);
+    _sctx.strokeStyle='#0A7F52'; _sctx.lineWidth=2.8; _sctx.lineCap='round'; _sctx.lineJoin='round'; _sink=false; _slast=null;
+    c.onpointerdown=function(e){ _sdraw=true; _slast=_sxy(e); try{c.setPointerCapture(e.pointerId);}catch(_){} };
+    c.onpointermove=function(e){ if(!_sdraw) return; var p=_sxy(e); _sctx.beginPath(); _sctx.moveTo(_slast.x,_slast.y); _sctx.lineTo(p.x,p.y); _sctx.stroke(); _slast=p; _sink=true; };
+    c.onpointerup=function(){ _sdraw=false; };
+    c.onpointerleave=function(){ _sdraw=false; };
+  }
+  function signClear(){ var c=document.getElementById('signCanvas'); if(!_sctx) return; _sctx.fillStyle='#fff'; _sctx.fillRect(0,0,c.width,c.height); _sink=false; var hh=document.getElementById('signHint'); if(hh) hh.textContent=''; }
+  function signDone(){
+    if(!_sink){ var hh=document.getElementById('signHint'); if(hh) hh.textContent='Nejdřív se podepiš do rámečku.'; return; }
+    var c=document.getElementById('signCanvas'), data=c.toDataURL('image/png');
+    var box=document.getElementById('arrSignBox'); if(box){ box.classList.add('signed'); box.innerHTML='<img src="'+data+'" alt="podpis" style="max-height:92px">'; }
+    arrState.signed=true; var m=document.getElementById('signModal'); if(m) m.classList.remove('show');
+    var g=document.getElementById('arrGate'); if(g) g.textContent='';
+  }
+  function signCancel(){ var m=document.getElementById('signModal'); if(m) m.classList.remove('show'); }
+  var _camTarget=null,_camT=[];
+  function arrCam(tile){
+    _camTarget=tile; var m=document.getElementById('camModal'); if(!m) return; m.classList.add('show');
+    var b=document.getElementById('camBtn'); if(b){ b.disabled=false; b.textContent='Vyfotit doklad'; }
+    var st=document.getElementById('camStatus'); if(st) st.textContent='Zarovnej doklad do rámečku';
+    var pv=document.getElementById('camProg'); if(pv) pv.style.width='0%';
+    var view=document.getElementById('camView'); if(view) view.classList.remove('shot');
+  }
+  function camShoot(){
+    var b=document.getElementById('camBtn'),view=document.getElementById('camView'),st=document.getElementById('camStatus'),pv=document.getElementById('camProg');
+    if(b) b.disabled=true; if(view) view.classList.add('flash'); _camT.forEach(clearTimeout); _camT=[];
+    _camT.push(setTimeout(function(){ if(view){view.classList.remove('flash');view.classList.add('shot');} if(st) st.textContent='Skenuji doklad…'; if(pv) pv.style.width='45%'; },200));
+    _camT.push(setTimeout(function(){ if(st) st.textContent='Ověřuji údaje…'; if(pv) pv.style.width='80%'; },1100));
+    _camT.push(setTimeout(function(){ if(st) st.textContent='Nahráno ✓'; if(pv) pv.style.width='100%'; },1900));
+    _camT.push(setTimeout(function(){ if(_camTarget){ _camTarget.classList.add('up'); var ub=_camTarget.querySelector('.u-btn'); if(ub) ub.textContent='Nahráno ✓'; } camClose(); },2600));
+  }
+  function camClose(){ var m=document.getElementById('camModal'); if(m) m.classList.remove('show'); _camT.forEach(clearTimeout); _camT=[]; }
+  var inviteCode='VALU-'+(function(){var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;i<5;i++)s+=c.charAt(Math.floor(Math.random()*c.length));return s;})();
+  function openInvite(){ var m=document.getElementById('inviteModal'); if(!m) return; var ce=document.getElementById('inviteCode'); if(ce) ce.textContent=inviteCode; var sb=document.getElementById('inviteShareBtn'); if(sb){ sb.textContent='Sdílet pozvánku'; sb.style.background=''; sb.style.color=''; } m.classList.add('show'); }
+  function closeInvite(){ var m=document.getElementById('inviteModal'); if(m) m.classList.remove('show'); }
+  function inviteCopy(el){ try{ navigator.clipboard.writeText(document.getElementById('inviteCode').textContent); }catch(e){} el.textContent='Zkopírováno ✓'; el.style.background='var(--deep)'; el.style.color='var(--paper)'; }
+  function inviteShare(){
+    var code=(document.getElementById('inviteCode')||{}).textContent||inviteCode;
+    var url='https://valuneto.cz/?ref='+code;
+    var text='Pojď do Valuneto! S mým kódem '+code+' získáš 250 Kč, když si aktivuješ první produkt. '+url;
+    if(navigator.share){ navigator.share({title:'Valuneto — 250 Kč pro tebe',text:text,url:url}).catch(function(){}); }
+    else { try{ navigator.clipboard.writeText(text); }catch(e){} var b=document.getElementById('inviteShareBtn'); if(b){ b.textContent='Pozvánka zkopírována ✓'; b.style.background='var(--deep)'; b.style.color='var(--paper)'; } }
+  }
+  var moreOffersData=[
+    {d:'zalando.cz',n:'Zalando',s:'Móda a obuv',p:'6 %'},
+    {d:'datart.cz',n:'Datart',s:'Elektro a spotřebiče',p:'4 %'},
+    {d:'drmax.cz',n:'Dr. Max',s:'Lékárna',p:'5 %'},
+    {d:'sportisimo.cz',n:'Sportisimo',s:'Sport a outdoor',p:'5 %'},
+    {d:'mall.cz',n:'Mall.cz',s:'Vše pro domácnost',p:'3 %'},
+    {d:'tchibo.cz',n:'Tchibo',s:'Káva a doplňky',p:'6 %'},
+    {d:'bonami.cz',n:'Bonami',s:'Bytové doplňky',p:'7 %'},
+    {d:'answear.cz',n:'Answear',s:'Móda',p:'8 %'},
+    {d:'footshop.cz',n:'Footshop',s:'Tenisky a streetwear',p:'6 %'},
+    {d:'pilulka.cz',n:'Pilulka',s:'Lékárna a drogerie',p:'5 %'},
+    {d:'decathlon.cz',n:'Decathlon',s:'Sport',p:'4 %'},
+    {d:'ikea.com',n:'IKEA',s:'Nábytek',p:'3 %'},
+    {d:'aboutyou.cz',n:'About You',s:'Móda',p:'7 %'},
+    {d:'kasa.cz',n:'Kasa.cz',s:'Elektro a dům',p:'4 %'}
+  ];
+  var _offOpen=false;
+  function toggleOffers(){
+    var box=document.getElementById('moreOffers'), btn=document.getElementById('offersToggle'); if(!box) return;
+    if(!box.getAttribute('data-r')){
+      box.innerHTML=moreOffersData.map(function(o){
+        return '<div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain='+o.d+'&sz=128" referrerpolicy="no-referrer" data-fb="'+o.n.charAt(0)+'" onerror="this.parentElement.textContent=this.dataset.fb"></div><div><div class="nm">'+o.n+'</div><div class="sm">'+o.s+'</div></div><div class="pc">'+o.p+'</div></div>';
+      }).join('');
+      box.setAttribute('data-r','1');
+    }
+    _offOpen=!_offOpen; box.style.display=_offOpen?'block':'none';
+    if(btn) btn.textContent=_offOpen?'Skrýt nabídky':'Zobrazit všechny nabídky →';
+  }
+  var featuredOffers=[
+    {d:'rohlik.cz',n:'Rohlík.cz',s:'Online nákup potravin',p:'5 %'},
+    {d:'alza.cz',n:'Alza.cz',s:'Elektronika a doplňky',p:'3 %'},
+    {d:'notino.cz',n:'Notino',s:'Parfémy a kosmetika',p:'8 %'},
+    {d:'booking.com',n:'Booking.com',s:'Ubytování',p:'6 %'},
+    {d:'lidl.cz',n:'Lidl Plus',s:'Týdenní nákup',p:'4 %'}
+  ];
+  function offerRow(o){ return '<div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain='+o.d+'&sz=128" referrerpolicy="no-referrer" data-fb="'+o.n.charAt(0)+'" onerror="this.parentElement.textContent=this.dataset.fb"></div><div><div class="nm">'+o.n+'</div><div class="sm">'+o.s+'</div></div><div class="pc">'+o.p+'</div></div>'; }
+  function renderOffers(){ var el=document.getElementById('offersList'); if(!el) return; el.innerHTML=featuredOffers.concat(moreOffersData).map(offerRow).join(''); }
   function fitStage(){
     var s=document.querySelector('.stage');
     if(!s) return;
@@ -1210,24 +2242,17 @@
   window.addEventListener('load', fitStage);
   fitStage();
 
-  // ---- investor gate ----
-  var ACCESS_CODE = "VALUNETO26"; // <-- zmen pristupovy kod zde (nezalezi na velikosti pismen)
+  // ---- gate ----
+  var ACCESS_CODE = "VALUNETO26"; // zmen kod zde (nezalezi na velikosti pismen)
   function unlock(){
-    var inp=document.getElementById('gateCode');
-    var err=document.getElementById('gateErr');
+    var inp=document.getElementById('gateCode'), err=document.getElementById('gateErr');
     if(!inp) return;
-    var val=(inp.value||'').trim().toUpperCase();
-    if(val===ACCESS_CODE){
-      var g=document.getElementById('gate');
-      if(err) err.classList.remove('show');
-      g.classList.add('hide');
-      setTimeout(function(){ if(g) g.style.display='none'; fitStage(); }, 460);
-    } else {
-      if(err) err.classList.add('show');
-      inp.value=''; inp.focus();
-    }
+    if((inp.value||'').trim().toUpperCase()===ACCESS_CODE){
+      var g=document.getElementById('gate'); if(err) err.classList.remove('show');
+      g.classList.add('hide'); setTimeout(function(){ if(g) g.style.display='none'; fitStage(); },460);
+    } else { if(err) err.classList.add('show'); inp.value=''; inp.focus(); }
   }
-  window.addEventListener('load', function(){ var i=document.getElementById('gateCode'); if(i) i.focus(); });
+  window.addEventListener('load', function(){ var c=document.getElementById('gateCode'); if(c) c.focus(); });
 </script>
 </body>
 </html>
