@@ -1,0 +1,1220 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Valuneto — investor demo</title>
+<style>
+  :root{
+    --ink:#0C140F; --paper:#F6F8F4; --net:#00C46A; --deep:#0A7F52;
+    --champagne:#E7C383; --coral:#FF6B57; --slate:#6B756E; --slate-2:#9AA39C;
+    --line:#E4E9E2;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1100px 700px at 50% -10%, #14211a 0%, var(--ink) 60%), var(--ink);
+    color:var(--paper);min-height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:18px;padding:28px 16px;overflow:hidden;
+  }
+  .bg-net{position:fixed;inset:0;z-index:0;opacity:.5;pointer-events:none}
+  .stage{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;transform-origin:center center;will-change:transform}
+
+  .phone{
+    position:relative;width:392px;height:812px;background:#050907;
+    border-radius:56px;padding:13px;
+    box-shadow:0 0 0 2px #2b352e,0 40px 90px -20px rgba(0,0,0,.75),inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .screenwrap{position:relative;width:100%;height:100%;border-radius:44px;overflow:hidden;background:var(--ink)}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:34px;background:#000;border-radius:20px;z-index:60}
+  .statusbar{
+    position:absolute;top:0;left:0;right:0;height:54px;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 30px 0;font-size:14px;font-weight:600;pointer-events:none;
+  }
+  .statusbar.onlight{color:var(--ink)}
+  .statusbar .right{display:flex;align-items:center;gap:6px}
+  .statusbar svg{display:block}
+
+  .screen{
+    position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;
+    padding:62px 22px 0;
+  }
+  .screen.active{opacity:1;visibility:visible;z-index:20;transition:opacity .28s ease}
+  .screen.dark{background:var(--ink);color:var(--paper)}
+  .screen.light{background:var(--paper);color:var(--ink)}
+  .pad{padding-bottom:30px}
+  .grow{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .grow::-webkit-scrollbar{display:none}
+  .tabpad{padding-bottom:100px}
+
+  .logo{font-weight:800;letter-spacing:-.5px}
+  .logo .v{font-weight:800}
+  .logo .n{color:var(--net);font-weight:500}
+  .logo.deepn .n{color:var(--deep)}
+
+  .btn{
+    appearance:none;border:0;cursor:pointer;width:100%;font-family:inherit;
+    font-size:17px;font-weight:700;padding:16px 20px;border-radius:16px;letter-spacing:-.1px;
+    color:#05140C;
+    background:linear-gradient(180deg,#23E18D 0%,#00C46A 52%,#00AF5D 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 4px rgba(0,90,50,.25), 0 9px 20px -7px rgba(0,196,106,.55), 0 2px 4px rgba(0,0,0,.12);
+    transition:transform .12s ease, box-shadow .18s ease, filter .15s ease;
+  }
+  .btn:hover{ filter:brightness(1.03); box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 4px rgba(0,90,50,.22), 0 12px 26px -7px rgba(0,196,106,.62), 0 2px 4px rgba(0,0,0,.12); }
+  .btn:active{ transform:translateY(1px) scale(.995); filter:brightness(.97); box-shadow:inset 0 2px 5px rgba(0,80,45,.4), 0 4px 10px -5px rgba(0,196,106,.5); }
+  .btn.ghost{background:transparent;color:var(--slate);font-weight:600;font-size:15px;padding:12px;box-shadow:none;}
+
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--net)}
+  .muted-d{color:var(--slate-2)}
+
+  /* ---- auth / login ---- */
+  .authh1{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1.1;margin:16px 0 10px}
+  .social{display:flex;flex-direction:column;gap:11px}
+  .sbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:15.5px;color:var(--ink);cursor:pointer;transition:transform .12s,border-color .15s}
+  .sbtn:active{transform:scale(.98)}
+  .sbtn:hover{border-color:#c9d3cb}
+  .sbtn.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .divider{display:flex;align-items:center;gap:12px;margin:20px 0 16px;color:var(--slate);font-size:12px;font-weight:600}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .field label{font-size:12.5px;font-weight:700;color:var(--slate)}
+  .field input{font-family:inherit;font-size:15px;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);outline:none;transition:border-color .15s;width:100%}
+  .field input:focus{border-color:var(--deep)}
+  .row2{display:flex;gap:10px}
+  .row2 .field{flex:1}
+  .legal{font-size:11.5px;color:var(--slate);text-align:center;margin-top:14px;line-height:1.45}
+  .legal a{color:var(--deep);font-weight:600;cursor:pointer}
+
+  .sub{font-size:14.5px;line-height:1.45;color:var(--slate);margin-top:8px}
+  .h2{font-size:26px;font-weight:800;letter-spacing:-.4px;line-height:1.15}
+
+  .banks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+  .bank{
+    border:1.5px solid var(--line);background:#fff;border-radius:18px;padding:16px 14px;
+    display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:700;font-size:15px;color:var(--ink);
+    transition:border-color .15s, transform .12s;
+  }
+  .bank:active{transform:scale(.97)}
+  .bank:hover{border-color:#c9d3cb}
+  .bank .dot{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;flex:none}
+  .trust{display:flex;align-items:center;gap:9px;margin-top:20px;padding:13px 14px;background:#EAF7F0;border-radius:14px;color:var(--deep);font-size:13px;font-weight:600}
+
+  #s-analyze{align-items:center;justify-content:center;text-align:center}
+  .pulser{position:relative;width:150px;height:150px;margin-bottom:30px}
+  .pulser .core{position:absolute;inset:0;margin:auto;width:60px;height:60px;border-radius:18px;background:var(--net);display:grid;place-items:center;box-shadow:0 0 40px rgba(0,196,106,.55)}
+  .pulser .ring{position:absolute;inset:0;border:2px solid var(--net);border-radius:50%;opacity:0;animation:ring 2.1s ease-out infinite}
+  .pulser .ring:nth-child(2){animation-delay:.7s}
+  .pulser .ring:nth-child(3){animation-delay:1.4s}
+  @keyframes ring{0%{transform:scale(.4);opacity:0}25%{opacity:.7}100%{transform:scale(1.15);opacity:0}}
+  #analyzeText{font-size:17px;font-weight:600;color:var(--paper);min-height:24px;transition:opacity .25s}
+  .progressbar{width:180px;height:5px;background:#22302a;border-radius:5px;margin-top:22px;overflow:hidden}
+  .progressbar > i{display:block;height:100%;width:0;background:var(--net);border-radius:5px;transition:width .2s linear}
+
+  .dash-head{display:flex;align-items:center;justify-content:space-between}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-size:15px}
+  .nw-label{font-size:13.5px;color:var(--slate);font-weight:600;margin-top:18px}
+  .nw{font-size:46px;font-weight:800;letter-spacing:-1.4px;line-height:1;margin-top:4px;color:var(--ink)}
+  .nw .cur{font-size:24px;font-weight:700;color:var(--slate);letter-spacing:0;margin-left:4px}
+  .chg{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:13.5px;font-weight:700;color:var(--deep);background:#EAF7F0;padding:5px 10px;border-radius:999px}
+  .chart{margin:14px -4px 4px;height:96px;width:calc(100% + 8px)}
+  .accounts{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+  .acc{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)}
+  .acc:last-child{border-bottom:0}
+  .acc .ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;font-size:16px}
+  .acc .nm{font-weight:700;font-size:14.5px}
+  .acc .sm{font-size:12.5px;color:var(--slate)}
+  .acc .bal{margin-left:auto;font-weight:700;font-size:14.5px}
+  .alert{margin-top:18px;border-radius:20px;padding:18px;cursor:pointer;background:linear-gradient(135deg,#11201A,#0C140F);color:var(--paper);box-shadow:0 18px 40px -18px rgba(0,0,0,.55);transition:transform .12s}
+  .alert:active{transform:scale(.985)}
+  .alert .row1{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--champagne)}
+  .alert .big{font-size:28px;font-weight:800;letter-spacing:-.6px;margin:8px 0 3px}
+  .alert .cta{display:flex;align-items:center;gap:6px;margin-top:12px;color:var(--net);font-weight:700;font-size:14.5px}
+
+  .scr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .scr-head h2{font-size:26px;font-weight:800;letter-spacing:-.5px}
+  .scr-intro{font-size:14px;color:var(--slate);line-height:1.45;margin:6px 0 14px}
+
+  .sumline{display:flex;justify-content:space-between;align-items:baseline;padding:8px 2px 16px}
+  .sumline .l{font-size:13px;color:var(--slate);font-weight:600}
+  .sumline .v{font-size:24px;font-weight:800;letter-spacing:-.5px}
+  .acard{display:flex;align-items:center;gap:13px;padding:15px;border:1.5px solid var(--line);border-radius:16px;margin-bottom:10px;background:#fff}
+  .acard .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:17px}
+  .acard .nm{font-weight:700;font-size:15px}
+  .acard .sm{font-size:12.5px;color:var(--slate);margin-top:2px}
+  .acard .bal{margin-left:auto;font-weight:800;font-size:15px;text-align:right}
+
+  .total-card{background:var(--ink);color:var(--paper);border-radius:22px;padding:22px;margin-top:4px}
+  .total-card .lbl{font-size:13px;color:var(--slate-2);font-weight:600}
+  .total-card .amt{font-size:40px;font-weight:800;letter-spacing:-1px;margin-top:4px;color:var(--coral)}
+  .total-card .amt .pm{color:var(--paper);font-size:18px;font-weight:700;margin-left:4px;letter-spacing:0}
+  .leaks{margin-top:14px;display:flex;flex-direction:column}
+  .leak{display:flex;align-items:center;gap:13px;padding:15px 4px;border-bottom:1px solid var(--line);cursor:pointer;transition:transform .12s}
+  .leak:active{transform:scale(.99)}
+  .leak:last-child{border-bottom:0}
+  .leak.done{opacity:.62;cursor:default}
+  .leak.done .ic{background:#EAF7F0}
+  .leak .ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;font-size:19px;background:#F0EDE7}
+  .leak .nm{font-weight:700;font-size:15px}
+  .leak .sm{font-size:12.5px;color:var(--slate);margin-top:2px}
+  .leak .amt{margin-left:auto;text-align:right}
+  .leak .amt b{color:var(--coral);font-weight:800;font-size:15px}
+  .leak .amt span{display:block;font-size:11px;color:var(--slate);font-weight:600}
+  .pill-top{display:inline-block;background:#FDEDEA;color:var(--coral);font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+
+  .subhead{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin:20px 0 4px}
+  .prow{display:flex;align-items:center;gap:13px;padding:14px 4px;border-bottom:1px solid var(--line);cursor:pointer;transition:transform .12s}
+  .prow:active{transform:scale(.99)}
+  .prow:last-child{border-bottom:0}
+  .prow.static{cursor:default}
+  .prow.done{opacity:.72;cursor:default}
+  .prow .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:18px;background:#F0EDE7}
+  .prow .nm{font-weight:700;font-size:15px}
+  .prow .sm{font-size:12.5px;color:var(--slate);margin-top:2px}
+  .prow .pright{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .tag{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;white-space:nowrap}
+  .tag.save{background:#FDEDEA;color:var(--coral)}
+  .tag.ok{background:#EAF7F0;color:var(--deep)}
+  .tag.neutral{background:#EFF1ED;color:var(--slate)}
+  .chev{color:var(--slate-2);flex:none}
+
+  .compare{display:flex;gap:12px;margin-top:18px}
+  .cc{flex:1;border-radius:18px;padding:16px;border:1.5px solid var(--line)}
+  .cc.now{background:#fff}
+  .cc.new{background:#06140D;border-color:#06140D;color:var(--paper)}
+  .cc .t{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--slate)}
+  .cc.new .t{color:var(--net)}
+  .cc .p{font-size:27px;font-weight:800;letter-spacing:-.6px;margin-top:8px}
+  .cc .pm{font-size:13px;color:var(--slate);font-weight:600;margin-top:2px}
+  .cc.new .pm{color:var(--slate-2)}
+  .save-banner{margin-top:16px;background:#EAF7F0;border-radius:16px;padding:16px 18px;text-align:center}
+  .save-banner .s{font-size:13px;color:var(--deep);font-weight:700;letter-spacing:.3px}
+  .save-banner .b{font-size:30px;font-weight:800;color:var(--deep);letter-spacing:-.5px;margin-top:2px}
+  .feats{margin-top:18px;display:flex;flex-direction:column;gap:11px}
+  .feat{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:600;color:var(--ink)}
+  .feat .ck{width:23px;height:23px;border-radius:50%;background:#EAF7F0;color:var(--deep);display:grid;place-items:center;flex:none}
+
+  #s-success{align-items:center;text-align:center;justify-content:center}
+  .checkwrap{width:108px;height:108px;border-radius:50%;background:var(--net);display:grid;place-items:center;box-shadow:0 0 0 12px rgba(0,196,106,.15),0 0 50px rgba(0,196,106,.4);animation:pop .5s cubic-bezier(.2,.9,.3,1.4) both}
+  @keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+  #s-success h2{font-size:28px;font-weight:800;margin-top:26px;letter-spacing:-.4px}
+  #s-success .ssub{color:var(--slate-2);font-size:15px;margin-top:8px;line-height:1.45;max-width:30ch}
+  .yr-card{margin-top:26px;background:#11201A;border:1px solid #1d2b24;border-radius:20px;padding:20px 26px}
+  .yr-card .l{font-size:12.5px;color:var(--slate-2);font-weight:600;letter-spacing:.3px}
+  .yr-card .v{font-size:34px;font-weight:800;color:var(--net);letter-spacing:-.6px;margin-top:4px}
+
+  .cb-balance{background:var(--ink);color:var(--paper);border-radius:22px;padding:22px;margin-top:2px}
+  .cb-balance .l{font-size:13px;color:var(--slate-2);font-weight:600}
+  .cb-balance .v{font-size:40px;font-weight:800;letter-spacing:-1px;margin:4px 0 14px;color:var(--champagne)}
+  .cb-stat{display:flex;gap:10px;margin:14px 0 4px}
+  .cb-stat .box{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:13px}
+  .cb-stat .bl{font-size:11.5px;color:var(--slate);font-weight:600}
+  .cb-stat .bv{font-size:18px;font-weight:800;margin-top:3px}
+  .offer{display:flex;align-items:center;gap:13px;padding:13px 4px;border-bottom:1px solid var(--line)}
+  .offer:last-child{border-bottom:0}
+  .offer .lg{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;font-weight:800;color:#fff;font-size:14px}
+  .offer .nm{font-weight:700;font-size:14.5px}
+  .offer .sm{font-size:12px;color:var(--slate);margin-top:1px}
+  .offer .pc{margin-left:auto;font-weight:800;color:var(--deep);font-size:15px}
+
+  /* shared bottom tab bar */
+  .tabbar{position:absolute;left:0;right:0;bottom:0;z-index:40;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .3s,transform .3s,visibility .3s;pointer-events:none}
+  .tabbar.show{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+  .nav{background:rgba(246,248,244,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start;padding:11px 10px 24px}
+  .nav .item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--slate);flex:1;cursor:pointer;transition:color .15s}
+  .nav .item.active{color:var(--deep)}
+  .nav .item svg{display:block}
+  .home-ind{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.85;z-index:41}
+
+  .ctrls{display:flex;align-items:center;gap:14px;color:var(--slate-2);font-size:13px;z-index:2}
+  .ctrls button{font-family:inherit;background:#16211b;color:var(--paper);border:1px solid #25342c;border-radius:11px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+  .ctrls button:hover{background:#1d2b24}
+  .ctrls .dots{display:flex;gap:6px}
+  .ctrls .dots i{width:7px;height:7px;border-radius:50%;background:#2c3a32;transition:background .2s,width .2s}
+  .ctrls .dots i.on{background:var(--net);width:18px;border-radius:4px}
+  .hint{color:#56635b;font-size:12px;z-index:2}
+  .wm{position:fixed;top:18px;left:22px;z-index:2;font-size:15px;opacity:.8}
+  /* responsive fit handled by JS (fitStage) */
+
+  /* ---- bank picker list ---- */
+  .banklist{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .bankrow{display:flex;align-items:center;gap:13px;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;transition:border-color .15s,transform .12s}
+  .bankrow:active{transform:scale(.99)}
+  .bankrow:hover{border-color:#c9d3cb}
+  .bankrow .blogo{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;color:#fff;font-weight:800;letter-spacing:.3px;overflow:hidden}
+  .bankrow .bname{font-weight:700;font-size:15px;color:var(--ink)}
+  .bankrow .chev{margin-left:auto;color:var(--slate-2);flex:none}
+
+  /* ---- bottom FAB (AI assistant) ---- */
+  .nav .fab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative}
+  .fab-btn{width:56px;height:56px;border-radius:50%;background:var(--net);display:grid;place-items:center;margin-top:-30px;box-shadow:0 10px 22px -4px rgba(0,196,106,.55),0 0 0 5px var(--paper);transition:transform .15s}
+  .nav .fab:active .fab-btn{transform:scale(.94)}
+  .nav .fab.active .fab-btn{box-shadow:0 10px 22px -4px rgba(0,196,106,.6),0 0 0 5px var(--paper),0 0 0 7px rgba(0,196,106,.32)}
+  .fab-lbl{font-size:10.5px;font-weight:700;color:var(--deep)}
+
+  /* ---- AI assistant ---- */
+  .as-head{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+  .as-av{width:42px;height:42px;border-radius:50%;background:var(--net);display:grid;place-items:center;flex:none}
+  .as-name{font-weight:800;font-size:17px;letter-spacing:-.2px}
+  .as-status{font-size:12px;color:var(--deep);font-weight:600;display:flex;align-items:center;gap:5px}
+  .as-status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--net)}
+  .chat{display:flex;flex-direction:column;gap:9px}
+  .bub{max-width:82%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.45}
+  .bub.ai{background:#EEF1EC;color:var(--ink);align-self:flex-start;border-bottom-left-radius:5px}
+  .bub.ai b{color:var(--deep)}
+  .bub.me{background:var(--net);color:#05140C;align-self:flex-end;border-bottom-right-radius:5px;font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{border:1.5px solid var(--line);color:var(--ink);background:#fff;border-radius:999px;padding:9px 13px;font-size:13px;font-weight:600;cursor:pointer;transition:transform .12s,background .15s}
+  .chip:active{transform:scale(.97)}
+  .chip:hover{background:#F0F2EE}
+  .askbar{display:flex;align-items:center;gap:8px;margin-top:16px;background:#fff;border:1.5px solid var(--line);border-radius:15px;padding:8px 8px 8px 14px}
+  .askbar input{flex:1;background:transparent;border:0;outline:none;color:var(--ink);font-family:inherit;font-size:14px}
+  .askbar input::placeholder{color:var(--slate)}
+  .askbar .send{width:36px;height:36px;border-radius:50%;background:var(--net);display:grid;place-items:center;flex:none;cursor:pointer;border:0}
+
+  .bankrow .blogo img{width:30px;height:30px;object-fit:contain;display:block;border-radius:6px}
+
+  .logo.lockup{display:inline-flex;align-items:center;gap:.34em}
+  .logo.lockup .lk-txt{line-height:1;letter-spacing:-.02em}
+  .vmark{height:1.18em;width:1.18em;display:block;flex:none}
+
+  .bankrow .blogo.airlogo{padding:0 4px}
+  .bankrow .blogo.airlogo svg{width:100%;height:auto;display:block}
+
+  /* --- rewards (cashback redemption) --- */
+  .rwd-intro{ font-size:14px; color:var(--slate); line-height:1.45; margin:8px 0 16px; }
+  .rwd{ display:flex; align-items:center; gap:13px; padding:14px; border:1.5px solid var(--line); border-radius:16px; background:#fff; margin-bottom:10px; cursor:pointer; transition:border-color .15s, transform .12s; }
+  .rwd:active{ transform:scale(.99); }
+  .rwd:hover{ border-color:#c9d3cb; }
+  .rwd .ic{ width:44px; height:44px; border-radius:13px; display:grid; place-items:center; flex:none; font-size:20px; background:#F0EDE7; }
+  .rwd .nm{ font-weight:700; font-size:15px; }
+  .rwd .sm{ font-size:12.5px; color:var(--slate); margin-top:2px; }
+  .rwd .val{ margin-left:auto; text-align:right; flex:none; }
+  .rwd .val b{ color:var(--deep); font-weight:800; font-size:14px; display:block; }
+  .rwd .val span{ font-size:11px; color:var(--slate); }
+  .rwd-done{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:26px 10px; }
+
+  /* --- 3D glossy hero numbers --- */
+  .nw{ background:linear-gradient(180deg,#46564c 0%,#0C140F 72%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; filter:drop-shadow(0 3px 6px rgba(12,20,15,.28)); }
+  .nw .cur{ -webkit-text-fill-color:var(--slate); color:var(--slate); }
+  .alert .big{ filter:drop-shadow(0 2px 7px rgba(0,0,0,.4)); }
+  .total-card .amt{ background:linear-gradient(180deg,#FF9888 0%,#EF4F38 78%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; filter:drop-shadow(0 2px 7px rgba(255,107,87,.4)); }
+  .total-card .amt .pm{ -webkit-text-fill-color:var(--paper); color:var(--paper); }
+  .cb-balance .v{ background:linear-gradient(180deg,#F6DFB0 0%,#D5A452 80%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; filter:drop-shadow(0 3px 7px rgba(0,0,0,.35)); }
+  .yr-card .v{ background:linear-gradient(180deg,#3BEC97 0%,#00A857 82%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; filter:drop-shadow(0 2px 8px rgba(0,196,106,.45)); }
+  .save-banner .b{ background:linear-gradient(180deg,#18B06E 0%,#075F3C 86%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; filter:drop-shadow(0 2px 5px rgba(10,127,82,.3)); }
+
+  .offer .lg img, .prow .ic img, .rwd .ic img, .acc .ic img, .acard .ic img{ width:60%; height:60%; object-fit:contain; border-radius:4px; display:block; }
+
+  /* --- onboarding (personalizace) --- */
+  .onb-top{ display:flex; align-items:center; gap:12px; }
+  .onb-back{ background:transparent; border:0; cursor:pointer; color:var(--ink); padding:2px 6px 2px 0; display:grid; place-items:center; }
+  .onb-step{ font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--deep); }
+  .onb-prog{ flex:1; height:4px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .onb-prog > i{ display:block; height:100%; background:var(--net); border-radius:4px; transition:width .3s; }
+  .onb-q{ margin-top:18px; }
+  .onb-label{ font-size:15px; font-weight:700; color:var(--ink); margin-bottom:10px; }
+  .chips-row{ display:flex; flex-wrap:wrap; gap:9px; }
+  .opt{ appearance:none; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; padding:10px 15px; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:var(--ink); transition:all .14s; }
+  .opt:hover{ border-color:#c9d3cb; }
+  .opt.sel{ background:var(--net); border-color:var(--net); color:#05140C; box-shadow:0 4px 12px -4px rgba(0,196,106,.5); }
+  .onb-actions{ padding:8px 0 30px; }
+  .onb-note{ display:flex; align-items:flex-start; gap:10px; background:#EAF7F0; border-radius:14px; padding:13px 14px; font-size:13px; color:var(--deep); font-weight:600; line-height:1.45; margin-top:20px; }
+  .onb-skip{ display:block; text-align:center; margin-top:12px; color:var(--slate); font-size:13.5px; font-weight:600; cursor:pointer; text-decoration:underline; }
+  /* personalization banner */
+  .perso{ display:flex; align-items:center; gap:8px; margin-top:12px; padding:7px 11px; border-radius:12px; background:#EAF7F0; border:1px solid #D3EBDD; cursor:pointer; transition:transform .12s; width:fit-content; max-width:100%; }
+  .perso > b{ font-size:11px; color:var(--ink); font-weight:800; }
+  .perso:active{ transform:scale(.99); }
+  .perso-ic{ width:22px; height:22px; border-radius:7px; background:#fff; display:grid; place-items:center; flex:none; font-size:12px; }
+  .perso-ic svg{ width:14px; height:14px; }
+  .perso-tx{ display:flex; flex-direction:column; line-height:1.25; }
+  .perso-tx b{ font-size:11px; color:var(--ink); font-weight:800; }
+  .perso-tx span{ font-size:9px; color:var(--deep); font-weight:600; }
+  .perso-edit{ font-size:10px; font-weight:700; color:var(--deep); flex:none; }
+  /* skip modal */
+  .modal-bg{ position:absolute; inset:0; z-index:90; background:rgba(8,12,10,.55); display:flex; align-items:center; justify-content:center; padding:26px; opacity:0; visibility:hidden; transition:opacity .25s, visibility .25s; }
+  .modal-bg.show{ opacity:1; visibility:visible; }
+  .modal{ background:var(--paper); border-radius:22px; padding:24px 22px; text-align:center; width:100%; max-width:310px; box-shadow:0 30px 60px -18px rgba(0,0,0,.55); transform:translateY(10px); transition:transform .25s; }
+  .modal-bg.show .modal{ transform:none; }
+  .modal .mic{ width:54px; height:54px; border-radius:50%; background:#FDEDEA; color:var(--coral); display:grid; place-items:center; margin:0 auto 14px; }
+  .modal h3{ font-size:19px; font-weight:800; letter-spacing:-.3px; }
+  .modal p{ font-size:13.5px; color:var(--slate); line-height:1.5; margin:9px 0 18px; }
+  .modal p b{ color:var(--ink); }
+  .modal .btn{ margin-bottom:9px; }
+
+  .code-box{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:18px; font-weight:800; letter-spacing:2px; color:var(--ink); background:#fff; border:1.5px dashed var(--deep); border-radius:12px; padding:12px 10px; margin:4px 0 14px; }
+
+  /* --- investment screen + celebration --- */
+  .invest-amt{ display:flex; align-items:baseline; justify-content:space-between; background:var(--ink); color:var(--paper); border-radius:18px; padding:18px; margin-top:16px; }
+  .invest-amt .il{ font-size:13px; color:var(--slate-2); font-weight:600; }
+  .invest-amt .iv{ font-size:30px; font-weight:800; letter-spacing:-.6px; }
+  .invest-note{ display:flex; flex-direction:column; gap:4px; background:#EAF7F0; border-radius:14px; padding:13px 14px; font-size:13px; color:var(--deep); font-weight:600; line-height:1.45; margin-top:18px; }
+  .invest-note span{ color:var(--slate); font-weight:500; font-size:11.5px; }
+  .conf-wrap{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:5; }
+  .confetti{ position:absolute; top:-14px; width:9px; height:14px; animation:confFall 1.7s cubic-bezier(.4,.2,.6,1) forwards; }
+  @keyframes confFall{ 0%{ transform:translateY(-14px) rotate(0); opacity:1 } 100%{ transform:translateY(460px) rotate(560deg); opacity:0 } }
+  .goal-card{ width:100%; background:#fff; border:1.5px solid var(--line); border-radius:18px; padding:16px; margin-top:24px; text-align:left; }
+  .gc-top{ display:flex; justify-content:space-between; align-items:baseline; font-size:13.5px; color:var(--slate); font-weight:600; }
+  .gc-top b{ color:var(--ink); }
+  .gc-top span:last-child{ font-weight:800; color:var(--deep); font-size:15px; }
+  .gc-bar{ height:10px; background:var(--line); border-radius:6px; overflow:hidden; margin:10px 0 8px; }
+  .gc-bar > i{ display:block; height:100%; background:linear-gradient(90deg,#0A7F52,#00C46A); border-radius:6px; transition:width 1s cubic-bezier(.2,.7,.3,1); }
+  .gc-note{ font-size:12.5px; color:var(--deep); font-weight:600; }
+
+  .mr-note{ font-size:12px; color:var(--slate); line-height:1.45; margin-top:12px; }
+  .mr-note b{ color:var(--deep); }
+
+  /* ====== INVESTOR GATE ====== */
+  .gate{
+    position:fixed; inset:0; z-index:1000;
+    display:flex; align-items:center; justify-content:center; padding:26px;
+    background:radial-gradient(1100px 700px at 50% -10%, #14211a 0%, var(--ink) 60%), var(--ink);
+    transition:opacity .45s ease, visibility .45s ease;
+  }
+  .gate.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  .gate .bg-net{ position:absolute; inset:0; z-index:0; opacity:.5; pointer-events:none; }
+  .gate-card{ position:relative; z-index:2; width:100%; max-width:382px; text-align:center; }
+  .gate-card .logo{ justify-content:center; margin-bottom:26px; }
+  .gate-eyebrow{ font-size:12px; font-weight:800; letter-spacing:1.8px; text-transform:uppercase; color:var(--net); }
+  .gate-h1{ font-size:30px; font-weight:800; letter-spacing:-.6px; color:var(--paper); line-height:1.12; margin:10px 0 12px; }
+  .gate-sub{ font-size:14.5px; line-height:1.5; color:var(--slate-2); margin-bottom:24px; }
+  .gate-input{
+    width:100%; font-family:inherit; font-size:18px; font-weight:700; text-align:center; letter-spacing:3px;
+    padding:16px; border-radius:14px; border:1.5px solid #25342c; background:#0f1a14; color:var(--paper);
+    outline:none; transition:border-color .15s; margin-bottom:14px; text-transform:uppercase;
+  }
+  .gate-input:focus{ border-color:var(--net); }
+  .gate-input::placeholder{ color:#56635b; letter-spacing:.5px; font-weight:500; text-transform:none; }
+  .gate-err{ display:none; color:var(--coral); font-size:13px; font-weight:700; margin:-4px 0 12px; }
+  .gate-err.show{ display:block; animation:gshake .35s; }
+  @keyframes gshake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .gate-foot{ font-size:11.5px; color:var(--slate); margin-top:20px; line-height:1.5; }
+</style>
+</head>
+<body>
+
+<!-- ===== INVESTOR GATE ===== -->
+<div id="gate" class="gate">
+  <svg class="bg-net" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 800"><g fill="#1c2a22"><circle cx="120" cy="120" r="3"/><circle cx="300" cy="80" r="2"/><circle cx="520" cy="160" r="2.5"/><circle cx="900" cy="100" r="3"/><circle cx="1080" cy="220" r="2"/><circle cx="1000" cy="520" r="2.5"/><circle cx="160" cy="600" r="2.5"/><circle cx="80" cy="420" r="2"/><circle cx="380" cy="700" r="3"/><circle cx="700" cy="720" r="2"/><circle cx="1120" cy="640" r="2.5"/><circle cx="640" cy="380" r="2"/></g><g stroke="#16221b" stroke-width="1"><line x1="120" y1="120" x2="300" y2="80"/><line x1="300" y1="80" x2="520" y2="160"/><line x1="900" y1="100" x2="1080" y2="220"/><line x1="80" y1="420" x2="160" y2="600"/><line x1="640" y1="380" x2="520" y2="160"/><line x1="1000" y1="520" x2="1120" y2="640"/></g></svg>
+  <div class="gate-card">
+    <div class="logo lockup" style="font-size:23px"><svg class="vmark" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="86" height="86" rx="25" fill="#00C46A"/><path d="M27 47 L43 65 L71 27" fill="none" stroke="#0C140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lk-txt"><span class="v">Valu</span><span class="n">neto</span></span></div>
+    <div class="gate-eyebrow">Náhled pro investory</div>
+    <h1 class="gate-h1">Přístup jen pro zvané</h1>
+    <p class="gate-sub">Zadej přístupový kód, který jsi dostal od týmu Valuneto, a otevři si klikací demo.</p>
+    <input id="gateCode" class="gate-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Přístupový kód" onkeydown="if(event.key==='Enter'){unlock();}">
+    <div id="gateErr" class="gate-err">Neplatný kód. Zkus to znovu.</div>
+    <button class="btn" style="margin-top:4px" onclick="unlock()">Vstoupit →</button>
+    <p class="gate-foot">Demo běží na simulovaných datech. Žádné reálné účty, žádné platby.</p>
+  </div>
+</div>
+
+<div class="wm">Náhled pro investory — přístup jen pro zvané.</div>
+
+<svg class="bg-net" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 800">
+  <g fill="#1c2a22">
+    <circle cx="120" cy="120" r="3"/><circle cx="300" cy="80" r="2"/><circle cx="520" cy="160" r="2.5"/>
+    <circle cx="900" cy="100" r="3"/><circle cx="1080" cy="220" r="2"/><circle cx="1000" cy="520" r="2.5"/>
+    <circle cx="160" cy="600" r="2.5"/><circle cx="80" cy="420" r="2"/><circle cx="380" cy="700" r="3"/>
+    <circle cx="700" cy="720" r="2"/><circle cx="1120" cy="640" r="2.5"/><circle cx="640" cy="380" r="2"/>
+  </g>
+  <g stroke="#16221b" stroke-width="1">
+    <line x1="120" y1="120" x2="300" y2="80"/><line x1="300" y1="80" x2="520" y2="160"/>
+    <line x1="900" y1="100" x2="1080" y2="220"/><line x1="80" y1="420" x2="160" y2="600"/>
+    <line x1="640" y1="380" x2="520" y2="160"/><line x1="1000" y1="520" x2="1120" y2="640"/>
+  </g>
+</svg>
+
+
+<div class="stage">
+  <div class="phone">
+    <div class="screenwrap">
+      <div class="island"></div>
+      <div class="statusbar onlight" id="statusbar">
+        <span>9:41</span>
+        <span class="right">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5A11 11 0 0 0 8.5.4 11 11 0 0 0 1 3.4L2.5 4.9A8.6 8.6 0 0 1 8.5 2.5Z"/><path d="M8.5 6.1c1.3 0 2.5.5 3.4 1.4l1.4-1.5A7 7 0 0 0 8.5 4 7 7 0 0 0 3.7 6l1.4 1.5A4.8 4.8 0 0 1 8.5 6.1Z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="3" stroke="currentColor" stroke-opacity=".5"/><rect x="3" y="3" width="16" height="6" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor" fill-opacity=".5"/></svg>
+        </span>
+      </div>
+
+      <!-- 0 LOGIN -->
+      <section class="screen light active" id="s-welcome">
+        <div class="grow" style="padding-bottom:24px;display:flex;flex-direction:column">
+          <div style="padding-top:4px">
+            <div class="logo lockup deepn" style="font-size:22px"><svg class="vmark" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="86" height="86" rx="25" fill="#00C46A"/><path d="M27 47 L43 65 L71 27" fill="none" stroke="#0C140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lk-txt"><span class="v">Valu</span><span class="n">neto</span></span></div>
+            <h1 class="authh1">Tvé peníze<br>pod kontrolou.</h1>
+            <p class="sub" style="margin-bottom:22px">Přihlas se a za 2 minuty uvidíš, kolik ročně přeplácíš.</p>
+          </div>
+          <div class="social">
+            <button class="sbtn" onclick="startOnb()">
+              <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.5-2.1 14.3-5.6l-6.6-5.6C29.6 34.6 26.9 36 24 36c-5.2 0-9.6-3.3-11.2-8l-6.5 5C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.6 5.6C41.9 36.4 44 30.7 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
+              Pokračovat přes Google
+            </button>
+            <button class="sbtn dark" onclick="startOnb()">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.8c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.5.8-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.7 2.5 3 2.4 1.2-.1 1.6-.8 3.1-.8s1.8.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.8zM14.1 5.8c.7-.8 1.1-2 1-3.1-1 0-2.1.7-2.8 1.5-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.3z"/></svg>
+              Pokračovat přes Apple
+            </button>
+          </div>
+          <div class="divider">nebo se registruj e-mailem</div>
+          <div class="row2">
+            <div class="field"><label>Jméno</label><input type="text" placeholder="Tereza"></div>
+            <div class="field"><label>Příjmení</label><input type="text" placeholder="Nováková"></div>
+          </div>
+          <div class="field"><label>E-mail</label><input type="email" placeholder="tereza@email.cz"></div>
+          <button class="btn" style="margin-top:4px" onclick="startOnb()">Vytvořit účet →</button>
+          <p class="legal">Pokračováním souhlasíš s <a>podmínkami</a> a <a>ochranou soukromí</a>. Připojení účtů je vždy jen pro čtení.</p>
+        </div>
+      </section>
+
+      <!-- ONB 1 -->
+      <section class="screen light" id="s-onb1">
+        <div class="grow" style="padding-bottom:16px">
+          <div class="onb-top">
+            <div class="onb-step">Krok 1 ze 3</div>
+            <div class="onb-prog"><i style="width:33%"></i></div>
+          </div>
+          <h2 class="h2" style="margin:16px 0 4px">Nastavíme Valuneto na míru</h2>
+          <p class="sub" style="margin-bottom:6px">Pár otázek, ať ti radíme přesně. Zabere 30 sekund.</p>
+          <div class="onb-q">
+            <div class="onb-label">Kolik ti je?</div>
+            <div class="chips-row">
+              <button class="opt" onclick="pick('age','18-24',this)">18–24</button>
+              <button class="opt sel" onclick="pick('age','25-34',this)">25–34</button>
+              <button class="opt" onclick="pick('age','35-44',this)">35–44</button>
+              <button class="opt" onclick="pick('age','45+',this)">45+</button>
+            </div>
+          </div>
+          <div class="onb-q">
+            <div class="onb-label">Jaká je tvoje situace?</div>
+            <div class="chips-row">
+              <button class="opt sel" onclick="pick('job','zamestnanec',this)">Zaměstnanec</button>
+              <button class="opt" onclick="pick('job','osvc',this)">OSVČ</button>
+              <button class="opt" onclick="pick('job','student',this)">Student</button>
+              <button class="opt" onclick="pick('job','rodicovska',this)">Rodičovská</button>
+              <button class="opt" onclick="pick('job','bez',this)">Bez příjmu / hledám</button>
+            </div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="btn" onclick="goTo('s-onb2')">Pokračovat →</button>
+          <a class="onb-skip" onclick="showSkip()">Přeskočit nastavení na míru</a>
+        </div>
+      </section>
+
+      <!-- ONB 2 -->
+      <section class="screen light" id="s-onb2">
+        <div class="grow" style="padding-bottom:16px">
+          <div class="onb-top">
+            <button class="onb-back" onclick="goTo('s-onb1')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="onb-step">Krok 2 ze 3</div>
+            <div class="onb-prog"><i style="width:66%"></i></div>
+          </div>
+          <h2 class="h2" style="margin:16px 0 12px">Ještě dvě věci o tobě</h2>
+          <div class="onb-q">
+            <div class="onb-label">Rodinný stav</div>
+            <div class="chips-row">
+              <button class="opt" onclick="pick('family','sam',this)">Sám / sama</button>
+              <button class="opt sel" onclick="pick('family','vztah',this)">Ve vztahu</button>
+              <button class="opt" onclick="pick('family','deti',this)">Rodina s dětmi</button>
+            </div>
+          </div>
+          <div class="onb-q">
+            <div class="onb-label">Jak bydlíš?</div>
+            <div class="chips-row">
+              <button class="opt sel" onclick="pick('housing','najem',this)">Nájem</button>
+              <button class="opt" onclick="pick('housing','hypoteka',this)">Vlastní s hypotékou</button>
+              <button class="opt" onclick="pick('housing','vlastni',this)">Vlastní bez hypotéky</button>
+              <button class="opt" onclick="pick('housing','rodice',this)">U rodičů</button>
+            </div>
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="btn" onclick="goTo('s-onb3')">Pokračovat →</button>
+          <a class="onb-skip" onclick="showSkip()">Přeskočit nastavení na míru</a>
+        </div>
+      </section>
+
+      <!-- ONB 3 -->
+      <section class="screen light" id="s-onb3">
+        <div class="grow" style="padding-bottom:16px">
+          <div class="onb-top">
+            <button class="onb-back" onclick="goTo('s-onb2')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="onb-step">Krok 3 ze 3</div>
+            <div class="onb-prog"><i style="width:100%"></i></div>
+          </div>
+          <h2 class="h2" style="margin:16px 0 4px">Co je teď tvůj hlavní cíl?</h2>
+          <p class="sub" style="margin-bottom:6px">Podle něj poskládáme, co uvidíš jako první.</p>
+          <div class="onb-q">
+            <div class="chips-row">
+              <button class="opt sel" onclick="pick('goal','rezerva',this)">Vytvořit rezervu</button>
+              <button class="opt" onclick="pick('goal','dluhy',this)">Splatit dluhy</button>
+              <button class="opt" onclick="pick('goal','investice',this)">Investovat</button>
+              <button class="opt" onclick="pick('goal','nakup',this)">Na velký nákup</button>
+            </div>
+          </div>
+          <div class="onb-note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.5.5 1 1.2 1 2.5h6c0-1.3.5-2 1-2.5A6 6 0 0 0 12 3Z"/></svg>
+            Cíl můžeš kdykoliv změnit přímo v aplikaci — mění se s tebou, jak jde život.
+          </div>
+        </div>
+        <div class="onb-actions">
+          <button class="btn" onclick="finishOnb()">Dokončit →</button>
+          <a class="onb-skip" onclick="showSkip()">Přeskočit nastavení na míru</a>
+        </div>
+      </section>
+
+      <!-- 1 CONNECT -->
+      <section class="screen light" id="s-connect">
+        <div class="grow pad">
+          <div class="eyebrow" style="color:var(--deep)">Krok 1 ze 2</div>
+          <h2 class="h2" style="margin-top:8px">Připoj svůj účet</h2>
+          <p class="sub">Vyber banku, kde máš hlavní účet. Připojení je <b>jen pro čtení</b> — Valuneto nikdy nehýbe s tvými penězi.</p>
+                              <div class="banklist">
+            <div class="bankrow" onclick="goTo('s-analyze')"><span class="blogo" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=csob.cz&sz=128" alt="ČSOB" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#003DA5';p.style.color='#fff';p.style.fontSize='9px';p.textContent='ČSOB';"></span><span class="bname">ČSOB</span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div class="bankrow" onclick="goTo('s-analyze')"><span class="blogo" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=kb.cz&sz=128" alt="Komerční banka" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E2001A';p.style.color='#fff';p.style.fontSize='14px';p.textContent='KB';"></span><span class="bname">Komerční banka</span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div class="bankrow" onclick="goTo('s-analyze')"><span class="blogo airlogo" style="background:#fff"><svg viewBox="0 0 150 40" xmlns="http://www.w3.org/2000/svg"><text x="1" y="31" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="31" letter-spacing="-1"><tspan fill="#141414">air</tspan><tspan fill="#84C13F" font-size="36" dx="1">/</tspan><tspan fill="#141414" dx="1">bank</tspan></text></svg></span><span class="bname">Air Bank</span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div class="bankrow" onclick="goTo('s-analyze')"><span class="blogo" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=csas.cz&sz=128" alt="Česká spořitelna" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#2870ED';p.style.color='#fff';p.style.fontSize='13px';p.textContent='čs';"></span><span class="bname">Česká spořitelna</span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div class="bankrow" onclick="goTo('s-analyze')"><span class="blogo" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=revolut.com&sz=128" alt="Revolut" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#0C140F';p.style.color='#fff';p.style.fontSize='18px';p.textContent='R';"></span><span class="bname">Revolut</span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+            <div class="bankrow" onclick="goTo('s-analyze')"><span class="blogo" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=rb.cz&sz=128" alt="Raiffeisenbank" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#FEDB00';p.style.color='#000';p.style.fontSize='13px';p.textContent='RB';"></span><span class="bname">Raiffeisenbank</span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
+          </div>
+          <div class="trust">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+            Šifrováno přes PSD2 · regulováno ČNB · odpojíš kdykoliv
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 ANALYZE -->
+      <section class="screen dark" id="s-analyze">
+        <div class="pulser">
+          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+          <div class="core"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16 L9 10 L13 13 L20 5"/><path d="M20 5 h-4 M20 5 v4"/></svg></div>
+        </div>
+        <div id="analyzeText">Bezpečně načítám transakce…</div>
+        <div class="progressbar"><i id="analyzeBar"></i></div>
+      </section>
+
+      <!-- 3 DASHBOARD -->
+      <section class="screen light" id="s-dash">
+        <div class="grow tabpad">
+          <div class="dash-head">
+            <div class="logo lockup deepn" style="font-size:18px"><svg class="vmark" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="86" height="86" rx="25" fill="#00C46A"/><path d="M27 47 L43 65 L71 27" fill="none" stroke="#0C140F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lk-txt"><span class="v">Valu</span><span class="n">neto</span></span></div>
+            <div class="avatar">T</div>
+          </div>
+          <div class="nw-label">Tvé celkové čisté jmění</div>
+          <div class="nw"><span id="nwVal">0</span><span class="cur">Kč</span></div>
+          <div class="chg">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16 L10 9 L14 13 L20 5"/></svg>
+            +4,5 % za 30 dní
+          </div>
+          <div class="perso" id="persoBanner" onclick="editGoal()"><div class="perso-ic">🎯</div><b id="persoTitle">Cíl</b><span class="perso-edit">Upravit ›</span></div>
+          <svg class="chart" id="nwChart" viewBox="0 0 360 96" preserveAspectRatio="none">
+            <defs><linearGradient id="cf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00C46A" stop-opacity=".22"/><stop offset="1" stop-color="#00C46A" stop-opacity="0"/></linearGradient></defs>
+            <path id="chartFill" d="M0 78 C 40 74, 70 70, 110 64 S 180 54, 220 44 S 300 22, 360 10 L360 96 L0 96 Z" fill="url(#cf)" opacity="0"/>
+            <path id="chartLine" d="M0 78 C 40 74, 70 70, 110 64 S 180 54, 220 44 S 300 22, 360 10" fill="none" stroke="#0A7F52" stroke-width="3" stroke-linecap="round"/>
+            <circle id="chartDot" cx="360" cy="10" r="4.5" fill="#00C46A"/>
+          </svg>
+          <div class="accounts">
+            <div class="acc"><div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=csob.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E7EEFB';p.style.color='#0033A0';p.textContent='▦';"></div><div><div class="nm">Běžný účet · ČSOB</div><div class="sm">•••• 4821</div></div><div class="bal">38 420 Kč</div></div>
+            <div class="acc"><div class="ic" style="background:#fff;padding:0 3px"><svg viewBox="0 0 150 40" style="width:100%;height:auto;display:block"><text x="1" y="31" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="31" letter-spacing="-1"><tspan fill="#141414">air</tspan><tspan fill="#84C13F" font-size="36" dx="1">/</tspan><tspan fill="#141414" dx="1">bank</tspan></text></svg></div><div><div class="nm">Spořicí účet · Air Bank</div><div class="sm">•••• 0097</div></div><div class="bal">85 000 Kč</div></div>
+            <div class="acc"><div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=portu.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#EAF7F0';p.style.color='#0A7F52';p.textContent='▲';"></div><div><div class="nm">Investice · Portu</div><div class="sm">ETF portfolio</div></div><div class="bal">124 430 Kč</div></div>
+            <div class="acc"><div class="ic" style="background:#fff"><svg width="28" height="18" viewBox="0 0 36 24"><circle cx="14" cy="12" r="8.5" fill="#EB001B"/><circle cx="22" cy="12" r="8.5" fill="#F79E1B"/><path d="M18 5.4a8.5 8.5 0 0 1 0 13.2 8.5 8.5 0 0 1 0-13.2Z" fill="#FF5F00"/></svg></div><div><div class="nm">Kreditní karta</div><div class="sm">•••• 7733</div></div><div class="bal" style="color:#FF6B57">−12 000 Kč</div></div>
+          </div>
+          <div class="alert" onclick="goTo('s-leaks')">
+            <div class="row1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 0 3-3m-3 3L9 5"/><path d="M5 12a7 7 0 1 0 14 0"/></svg>
+              Našli jsme úsporu
+            </div>
+            <div class="big" id="alertBig">14 280 Kč / rok</div>
+            <div class="muted-d" style="font-size:14px" id="alertSub">…které právě teď zbytečně přeplácíš na 5 službách.</div>
+            <div class="cta">Ukázat kde to je
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3b ACCOUNTS -->
+      <section class="screen light" id="s-accounts">
+        <div class="grow tabpad">
+          <div class="scr-head"><h2>Účty</h2><div class="avatar">T</div></div>
+          <div class="sumline"><span class="l">Celkové čisté jmění</span><span class="v">235 850 Kč</span></div>
+          <div class="acard"><div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=csob.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E7EEFB';p.style.color='#0033A0';p.textContent='▦';"></div><div><div class="nm">Běžný účet · ČSOB</div><div class="sm">•••• 4821 · připojeno přes PSD2</div></div><div class="bal">38 420 Kč</div></div>
+          <div class="acard"><div class="ic" style="background:#fff;padding:0 3px"><svg viewBox="0 0 150 40" style="width:100%;height:auto;display:block"><text x="1" y="31" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="31" letter-spacing="-1"><tspan fill="#141414">air</tspan><tspan fill="#84C13F" font-size="36" dx="1">/</tspan><tspan fill="#141414" dx="1">bank</tspan></text></svg></div><div><div class="nm">Spořicí účet · Air Bank</div><div class="sm">•••• 0097 · úrok 0,5 %</div></div><div class="bal">85 000 Kč</div></div>
+          <div class="acard"><div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=portu.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#EAF7F0';p.style.color='#0A7F52';p.textContent='▲';"></div><div><div class="nm">Investice · Portu</div><div class="sm">ETF portfolio · +8,1 % YTD</div></div><div class="bal">124 430 Kč</div></div>
+          <div class="acard"><div class="ic" style="background:#fff"><svg width="28" height="18" viewBox="0 0 36 24"><circle cx="14" cy="12" r="8.5" fill="#EB001B"/><circle cx="22" cy="12" r="8.5" fill="#F79E1B"/><path d="M18 5.4a8.5 8.5 0 0 1 0 13.2 8.5 8.5 0 0 1 0-13.2Z" fill="#FF5F00"/></svg></div><div><div class="nm">Kreditní karta</div><div class="sm">•••• 7733 · splatnost 15. 6.</div></div><div class="bal" style="color:#FF6B57">−12 000 Kč</div></div>
+          <button class="btn" style="margin-top:8px" onclick="goTo('s-connect')">+ Připojit další účet</button>
+        </div>
+      </section>
+
+      <!-- 3c PRODUCTS -->
+      <section class="screen light" id="s-products">
+        <div class="grow tabpad">
+          <div class="scr-head"><h2>Produkty</h2><div class="avatar">T</div></div>
+          <p class="scr-intro">Tvé smlouvy a služby na jednom místě. Červené přeplácíš — klikni a Valuneto je vyřeší za tebe.</p>
+          <div id="productsList"></div>
+          <div class="subhead">Doporučeno pro tebe</div>
+          <div id="extrasList"></div>
+        </div>
+      </section>
+
+      <!-- 3d CASHBACK -->
+      <section class="screen light" id="s-cashback">
+        <div class="grow tabpad">
+          <div class="scr-head"><h2>Cashback</h2><div class="avatar">T</div></div>
+          <div class="cb-balance">
+            <div class="l">Cashback k vyplacení</div>
+            <div class="v" id="cbBalance">3 000 Kč</div>
+            <button class="btn" onclick="goTo('s-rewards')">Vybrat odměnu →</button>
+          </div>
+          <div class="cb-stat">
+            <div class="box"><div class="bl">Letos vyděláno</div><div class="bv">3 980 Kč</div></div>
+            <div class="box"><div class="bl">Aktivních nabídek</div><div class="bv">24</div></div>
+          </div>
+          <div class="subhead">Vybrané nabídky</div>
+          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=rohlik.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#2BB24C';p.textContent='R';"></div><div><div class="nm">Rohlík.cz</div><div class="sm">Online nákup potravin</div></div><div class="pc">5 %</div></div>
+          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=alza.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#0C140F';p.textContent='A';"></div><div><div class="nm">Alza.cz</div><div class="sm">Elektronika a doplňky</div></div><div class="pc">3 %</div></div>
+          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=notino.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#E5007D';p.textContent='N';"></div><div><div class="nm">Notino</div><div class="sm">Parfémy a kosmetika</div></div><div class="pc">8 %</div></div>
+          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=booking.com&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#003580';p.textContent='B';"></div><div><div class="nm">Booking.com</div><div class="sm">Ubytování</div></div><div class="pc">6 %</div></div>
+          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=lidl.cz&sz=128" referrerpolicy="no-referrer" onerror="var p=this.parentElement;p.style.background='#0A7F52';p.textContent='L';"></div><div><div class="nm">Lidl Plus</div><div class="sm">Týdenní nákup</div></div><div class="pc">4 %</div></div>
+          <div class="subhead">Měsíční odměny za aktivní produkty</div>
+          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.2V11c0 4.6 3.2 7.4 7.5 8.5 4.3-1.1 7.5-3.9 7.5-8.5V5.2L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="nm">Životní pojištění</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+50 Kč/měs</div></div>
+          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-5.5A2 2 0 0 1 6.9 6h10.2a2 2 0 0 1 1.9 1.5L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H4a1 1 0 0 1-1-1z"/></svg></div><div><div class="nm">Autopojištění</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+25 Kč/měs</div></div>
+          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div><div><div class="nm">Energie</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+15 Kč/měs</div></div>
+          <div class="offer"><div class="lg" style="background:#F0EDE7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></div><div><div class="nm">Mobilní tarif</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+8 Kč/měs</div></div>
+          <div class="offer"><div class="lg" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain=portu.cz&sz=128" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='📈'"></div><div><div class="nm">Investice · Portu</div><div class="sm">Aktivní přes Valuneto</div></div><div class="pc">+12 Kč/měs</div></div>
+          <div class="mr-note">Za produkty, které máš přes Valuneto aktivní, ti každý měsíc připíšeme bonus navíc. <b>Celkem +110 Kč/měs</b>.</div>
+          <p class="legal" style="margin-top:16px;text-align:left">Cashback se připíše do 30 dní po nákupu přes Valuneto. Nasbíraný cashback proměníš ve vybranou odměnu.</p>
+        </div>
+      </section>
+
+      <!-- 3e ASSISTANT -->
+      <section class="screen light" id="s-assistant">
+        <div class="grow tabpad">
+          <div class="as-head">
+            <div class="as-av"><svg width="24" height="24" viewBox="0 0 24 24" fill="#05140C"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9z"/><circle cx="18.5" cy="17.5" r="1.7"/></svg></div>
+            <div><div class="as-name">Valuneto</div><div class="as-status">online</div></div>
+          </div>
+          <div class="chat" id="chatBox"></div>
+          <div class="chips">
+            <div class="chip" onclick="askAssist('Kolik ušetřím celkem letos?')">Kolik ušetřím letos?</div>
+            <div class="chip" onclick="askAssist('Přepni mi energii')">Přepni mi energii</div>
+            <div class="chip" onclick="askAssist('Jak na mě dopadá inflace?')">Jak na mě jde inflace?</div>
+            <div class="chip" onclick="askAssist('Mám si víc spořit?')">Mám si víc spořit?</div>
+          </div>
+          <div class="askbar">
+            <input id="chatInput" type="text" placeholder="Zeptej se na cokoliv o svých penězích…" onkeydown="if(event.key==='Enter'){askAssist(this.value); this.value='';}">
+            <button class="send" onclick="var i=document.getElementById('chatInput'); askAssist(i.value); i.value='';">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3f REWARDS -->
+      <section class="screen light" id="s-rewards">
+        <div class="grow" style="padding-bottom:30px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn ghost" style="width:auto;padding:6px 8px 6px 0" onclick="goTo('s-cashback')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <h2 class="h2" style="font-size:22px">Vyber si odměnu</h2>
+          </div>
+          <div id="rewardsBody"></div>
+        </div>
+      </section>
+
+      <!-- INVEST -->
+      <section class="screen light" id="s-invest">
+        <div class="grow" style="position:relative;padding-bottom:20px" id="investBody"></div>
+      </section>
+
+      <!-- 4 LEAKS -->
+      <section class="screen light" id="s-leaks">
+        <div class="grow" style="padding-bottom:30px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn ghost" style="width:auto;padding:6px 8px 6px 0" onclick="goTo('s-dash')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <span class="pill-top" id="leakPill">Únik peněz · 5 položek</span>
+          </div>
+          <div class="total-card" style="margin-top:14px">
+            <div class="lbl" id="leakTotalLbl">Ročně zbytečně utrácíš navíc</div>
+            <div class="amt" id="leakTotal">−14 280<span class="pm">Kč/rok</span></div>
+          </div>
+          <div class="leaks" id="leaksList"></div>
+        </div>
+      </section>
+
+      <!-- 5 SWITCH -->
+      <section class="screen light" id="s-switch">
+        <div class="grow" style="padding-bottom:30px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn ghost" style="width:auto;padding:6px 8px 6px 0" onclick="goTo('s-leaks')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <h2 class="h2" style="font-size:22px"><span id="swTitle">Energie</span> · doporučení</h2>
+          </div>
+          <div class="compare">
+            <div class="cc now"><div class="t" id="swNowLbl">Teď platíš</div><div class="p" id="swNow">1 890 Kč</div><div class="pm" id="swNowUnit">měsíčně</div></div>
+            <div class="cc new"><div class="t" id="swNewLbl">Nejlevnější na trhu</div><div class="p" id="swNew">1 470 Kč</div><div class="pm" id="swNewUnit">měsíčně · stejná spotřeba</div></div>
+          </div>
+          <div class="save-banner"><div class="s" id="swSaveLbl">Tvá roční úspora</div><div class="b" id="swSave">5 040 Kč / rok</div></div>
+          <div class="feats" id="swFeats"></div>
+        </div>
+        <div style="padding:0 0 64px">
+          <button class="btn" id="swCta" onclick="confirmSwitch()">Aktivovat úsporu 5 040 Kč/rok</button>
+        </div>
+      </section>
+
+      <!-- 6 SUCCESS -->
+      <section class="screen dark" id="s-success">
+        <div class="grow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+          <div class="checkwrap"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
+          <h2 id="succTitle">Hotovo. Přepis běží.</h2>
+          <p class="ssub" id="succSub">Vyřídíme vše za tebe. První levnější fakturu uvidíš příští měsíc.</p>
+          <div class="yr-card">
+            <div class="l">Tvá roční úspora s Valuneto zatím</div>
+            <div class="v" id="succCumul">5 040 Kč</div>
+          </div>
+          <p class="ssub" style="margin-top:20px" id="succRemain"></p>
+        </div>
+        <div style="padding:0 0 26px;display:flex;flex-direction:column;gap:8px">
+          <button class="btn" onclick="goTo('s-leaks')">Pokračovat v úsporách →</button>
+          <button class="btn ghost" onclick="goTo('s-dash')">Zpět na přehled</button>
+        </div>
+      </section>
+
+      <!-- skip confirm modal -->
+      <div class="modal-bg" id="skipModal">
+        <div class="modal">
+          <div class="mic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+          <h3>Přeskočit nastavení na míru?</h3>
+          <p>Bez něj ti Valuneto <b>nedokáže radit přesně</b> — část funkcí nepoběží na 100 %. Vyplnění zabere jen <b>30 sekund</b>.</p>
+          <button class="btn" onclick="hideSkip()">Raději vyplnit (30 s)</button>
+          <button class="btn ghost" onclick="skipOnb()">Pokračovat bez vyplnění</button>
+        </div>
+      </div>
+
+      <!-- shared bottom tab bar -->
+      <div class="tabbar" id="tabbar">
+        <nav class="nav">
+          <div class="item" data-tab="s-dash" onclick="goTo('s-dash')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Přehled
+          </div>
+          <div class="item" data-tab="s-accounts" onclick="goTo('s-accounts')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.3" fill="currentColor" stroke="none"/></svg>Účty
+          </div>
+          <div class="fab" data-tab="s-assistant" onclick="goTo('s-assistant')">
+            <div class="fab-btn"><svg width="26" height="26" viewBox="0 0 24 24" fill="#05140C"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9z"/><circle cx="18.5" cy="17.5" r="1.7"/><circle cx="5.5" cy="16.5" r="1.2"/></svg></div>
+            <span class="fab-lbl">Valuneto</span>
+          </div>
+          <div class="item" data-tab="s-products" onclick="goTo('s-products')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Produkty
+          </div>
+          <div class="item" data-tab="s-cashback" onclick="goTo('s-cashback')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="9" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.4" fill="currentColor" stroke="none"/><line x1="8" y1="16" x2="16" y2="8"/></svg>Cashback
+          </div>
+        </nav>
+        <div class="home-ind"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="ctrls">
+    <button onclick="prev()">‹ Zpět</button>
+    <div class="dots" id="dots"></div>
+    <button onclick="next()">Další ›</button>
+    <button onclick="goTo('s-welcome')" title="Restartovat demo">↺</button>
+  </div>
+  <div class="hint">Klikej v aplikaci (i spodní menu), nebo použij šipky ← → na klávesnici.</div>
+</div>
+
+<script>
+  var allScreens = ['s-welcome','s-onb1','s-onb2','s-onb3','s-connect','s-analyze','s-dash','s-accounts','s-products','s-cashback','s-rewards','s-invest','s-assistant','s-leaks','s-switch','s-success'];
+  var order = ['s-welcome','s-connect','s-analyze','s-dash','s-leaks','s-switch','s-success'];
+  var TABS = ['s-dash','s-accounts','s-assistant','s-products','s-cashback'];
+  var lightScreens = ['s-welcome','s-onb1','s-onb2','s-onb3','s-connect','s-dash','s-accounts','s-products','s-cashback','s-rewards','s-invest','s-assistant','s-leaks','s-switch'];
+  var idx = 0;
+  var analyzeTimers = [];
+
+  var fmt = function(n){ return n.toLocaleString('cs-CZ') + ' Kč'; };
+  var plural = function(n,one,few,many){ return n===1?one:(n>=2&&n<=4?few:many); };
+  var CK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+  var CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+  var products = {
+    energie:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>', name:'Energie', sub:'Dražší než 92 % nabídek na trhu', year:5040, unit:'měsíčně',
+      nowLbl:'Teď platíš', now:1890, newLbl:'Nejlevnější na trhu', neu:1470, newUnit:'měsíčně · stejná spotřeba',
+      feats:['Ověřený dodavatel, smlouva bez závazku','Přepis i výpověď vyřídíme za tebe','Dodávka bez přerušení, žádné papírování']},
+    ruceni:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l2-5.5A2 2 0 0 1 6.9 6h10.2a2 2 0 0 1 1.9 1.5L21 13"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a2 2 0 1 1-4 0H9a2 2 0 1 1-4 0H4a1 1 0 0 1-1-1z"/></svg>', name:'Povinné ručení', sub:'Stejné krytí jinde levněji', year:3480, unit:'ročně',
+      nowLbl:'Teď platíš', now:6480, newLbl:'Nejlevnější na trhu', neu:3000, newUnit:'ročně · stejné krytí',
+      feats:['Stejné limity plnění i připojištění','Bez sankce — využijeme výročí smlouvy','Sjednáme online za tebe, stačí podpis']},
+    mobil:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>', name:'Mobilní tarif', sub:'Platíš za data, která nevyužiješ', year:2760, unit:'měsíčně',
+      nowLbl:'Teď platíš', now:749, newLbl:'Tarif na míru', neu:519, newUnit:'měsíčně · dle tvého využití',
+      feats:['Stejné pokrytí, telefonní číslo si necháš','Data i volání dle reálné spotřeby','Přenos čísla zařídíme do 4 dnů']},
+    banka:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3.5 7H20.5L12 3Z"/><path d="M5 10v7M9.5 10v7M14.5 10v7M19 10v7"/><path d="M3.5 20.5h17"/></svg>', name:'Bankovní poplatky', sub:'Účet zdarma pokryje vše stejně', year:1800, unit:'měsíčně',
+      nowLbl:'Teď platíš', now:150, newLbl:'Účet zdarma', neu:0, newUnit:'měsíčně · stejné funkce',
+      feats:['Zachováš si platby, karty i trvalé příkazy','Žádné poplatky za vedení ani výběry','Převod účtu vyřídíme za tebe']},
+    sporeni:{icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6.5" rx="6.5" ry="2.8"/><path d="M5.5 6.5v5c0 1.5 2.9 2.8 6.5 2.8s6.5-1.3 6.5-2.8v-5"/><path d="M5.5 11.5v5c0 1.5 2.9 2.8 6.5 2.8s6.5-1.3 6.5-2.8v-5"/></svg>', name:'Spořicí účet', sub:'Úrok 0,5 % vs. 5,0 % jinde', year:1200, unit:'měsíčně', gain:true,
+      nowLbl:'Teď ti nese', now:35, newLbl:'Mohlo by nést', neu:135, newUnit:'měsíčně · při 5,0 % p.a.',
+      feats:['Garantovaný úrok, peníze kdykoliv k dispozici','Pojištěno do 100 000 € ze zákona','Převod nastavíme jedním klikem']}
+  };
+  var prodOrder = ['energie','ruceni','mobil','banka','sporeni'];
+  var switched = {};
+  var currentProd = 'energie';
+
+  function isDone(k){ return switched[k] === true; }
+  function remainingSum(){ var s=0; prodOrder.forEach(function(k){ if(!isDone(k)) s+=products[k].year; }); return s; }
+  function remainingCount(){ var c=0; prodOrder.forEach(function(k){ if(!isDone(k)) c++; }); return c; }
+  function savedSum(){ var s=0; prodOrder.forEach(function(k){ if(isDone(k)) s+=products[k].year; }); return s; }
+
+  var dotsEl = document.getElementById('dots');
+  order.forEach(function(){ var i=document.createElement('i'); dotsEl.appendChild(i); });
+  var dots = Array.prototype.slice.call(dotsEl.children);
+
+  function setActive(id){
+    allScreens.forEach(function(s){ document.getElementById(s).classList.toggle('active', s===id); });
+    var i=order.indexOf(id);
+    if(i>=0) idx=i;
+    dots.forEach(function(d,k){ d.classList.toggle('on', i>=0 && k===i); });
+    document.getElementById('statusbar').classList.toggle('onlight', lightScreens.indexOf(id)>=0);
+  }
+
+  function updateTabbar(id){
+    var bar=document.getElementById('tabbar');
+    bar.classList.toggle('show', TABS.indexOf(id)>=0);
+    Array.prototype.slice.call(bar.querySelectorAll('[data-tab]')).forEach(function(it){
+      it.classList.toggle('active', it.getAttribute('data-tab')===id);
+    });
+  }
+
+  function goTo(id){
+    analyzeTimers.forEach(function(t){ clearTimeout(t); }); analyzeTimers=[];
+    setActive(id);
+    updateTabbar(id);
+    if(id==='s-analyze') runAnalyze();
+    if(id==='s-dash'){ runDash(); updateDashAlert(); updatePerso(); }
+    if(id==='s-leaks') renderLeaks();
+    if(id==='s-products'){ renderProducts(); renderExtras(); }
+    if(id==='s-rewards') renderRewards();
+    if(id==='s-invest') renderInvest();
+    if(id==='s-cashback') updateRewardBalance();
+    if(id==='s-success') renderSuccess();
+  }
+  function next(){ if(idx<order.length-1) goTo(order[idx+1]); }
+  function prev(){ if(idx>0) goTo(order[idx-1]); }
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight') next();
+    if(e.key==='ArrowLeft') prev();
+  });
+
+  function payout(btn){ btn.textContent='Odesláno na účet ✓'; btn.style.background='var(--deep)'; btn.style.color='var(--paper)'; }
+
+  function renderLeaks(){
+    var list=document.getElementById('leaksList'); list.innerHTML='';
+    prodOrder.forEach(function(k){
+      var p=products[k], done=isDone(k);
+      var row=document.createElement('div');
+      row.className='leak'+(done?' done':'');
+      if(!done) row.onclick=function(){ goToSwitch(k); };
+      row.innerHTML='<div class="ic">'+p.icon+'</div>'+
+        '<div><div class="nm">'+p.name+'</div><div class="sm">'+(done?'Přepnuto přes Valuneto':p.sub)+'</div></div>'+
+        '<div class="amt">'+(done
+          ? '<b style="color:var(--deep)">Hotovo ✓</b><span>ušetřeno '+fmt(p.year)+'</span>'
+          : '<b>−'+fmt(p.year)+'</b><span>/ rok</span>')+'</div>';
+      list.appendChild(row);
+    });
+    var c=remainingCount();
+    document.getElementById('leakTotal').innerHTML='−'+remainingSum().toLocaleString('cs-CZ')+'<span class="pm">Kč/rok</span>';
+    document.getElementById('leakPill').textContent = c>0 ? ('Únik peněz · '+c+' '+plural(c,'položka','položky','položek')) : 'Hotovo · vše vyřešeno';
+    document.getElementById('leakTotalLbl').textContent = c>0 ? 'Ročně zbytečně utrácíš navíc' : 'Všechny úniky peněz vyřešeny';
+  }
+
+  function renderProducts(){
+    var list=document.getElementById('productsList'); list.innerHTML='';
+    prodOrder.forEach(function(k){
+      var p=products[k], done=isDone(k);
+      var row=document.createElement('div');
+      row.className='prow'+(done?' done':'');
+      if(!done) row.onclick=function(){ goToSwitch(k); };
+      row.innerHTML='<div class="ic">'+p.icon+'</div>'+
+        '<div><div class="nm">'+p.name+'</div><div class="sm">'+(done?'Přepnuto · šetříš '+fmt(p.year)+'/rok':'Doporučení k dispozici')+'</div></div>'+
+        '<div class="pright">'+(done
+          ? '<span class="tag ok">Aktivní</span>'
+          : '<span class="tag save">−'+fmt(p.year)+'</span>'+CHEV)+'</div>';
+      list.appendChild(row);
+    });
+  }
+
+  function goToSwitch(k){
+    currentProd=k; var p=products[k];
+    document.getElementById('swTitle').textContent=p.name;
+    document.getElementById('swNowLbl').textContent=p.nowLbl;
+    document.getElementById('swNow').textContent=fmt(p.now);
+    document.getElementById('swNowUnit').textContent=p.unit;
+    document.getElementById('swNewLbl').textContent=p.newLbl;
+    document.getElementById('swNew').textContent=fmt(p.neu);
+    document.getElementById('swNewUnit').textContent=p.newUnit;
+    document.getElementById('swSaveLbl').textContent=p.gain?'Tvůj výnos navíc':'Tvá roční úspora';
+    document.getElementById('swSave').textContent=fmt(p.year)+' / rok';
+    document.getElementById('swFeats').innerHTML=p.feats.map(function(f){ return '<div class="feat"><span class="ck">'+CK+'</span>'+f+'</div>'; }).join('');
+    document.getElementById('swCta').textContent=p.gain?('Aktivovat výnos +'+fmt(p.year)+'/rok'):('Aktivovat úsporu '+fmt(p.year)+'/rok');
+    goTo('s-switch');
+  }
+
+  function confirmSwitch(){ switched[currentProd]=true; goTo('s-success'); }
+
+  function renderSuccess(){
+    var p=products[currentProd], c=remainingCount();
+    document.getElementById('succTitle').textContent=p.gain?'Hotovo. Převod běží.':'Hotovo. Přepis běží.';
+    document.getElementById('succSub').textContent=p.gain
+      ? 'Peníze přesuneme na lépe úročený účet. Zůstávají ti plně k dispozici.'
+      : 'Vyřídíme vše za tebe. První levnější fakturu uvidíš příští měsíc.';
+    document.getElementById('succCumul').textContent=fmt(savedSum());
+    var rem=document.getElementById('succRemain');
+    rem.innerHTML = c>0
+      ? ('Zbývá '+c+' '+plural(c,'úspora','úspory','úspor')+' v celkové hodnotě <b style="color:var(--paper)">'+fmt(remainingSum())+'/rok</b>. Valuneto hlídá tvé výdaje dál a samo upozorní, když se objeví nová.')
+      : ('Vyřešil jsi <b style="color:var(--paper)">všech 5 úniků peněz</b>. Valuneto teď hlídá tvé výdaje dál a upozorní, jakmile se objeví nová příležitost.');
+  }
+
+  function updateDashAlert(){
+    var c=remainingCount();
+    var big=document.getElementById('alertBig'), sub=document.getElementById('alertSub');
+    if(c>0){
+      big.textContent=remainingSum().toLocaleString('cs-CZ')+' Kč / rok';
+      sub.textContent='…které právě teď zbytečně přeplácíš na '+c+' '+plural(c,'službě','službách','službách')+'.';
+    } else {
+      big.textContent='Vše vyřešeno';
+      sub.textContent='Všechny úniky peněz jsou přepnuté. Sleduji tvé výdaje dál.';
+    }
+  }
+
+  function runAnalyze(){
+    var steps=['Bezpečně načítám transakce…','Hledám pravidelné platby…','Porovnávám s trhem…','Počítám tvé čisté jmění…'];
+    var txt=document.getElementById('analyzeText'), bar=document.getElementById('analyzeBar');
+    bar.style.width='12%'; txt.textContent=steps[0];
+    steps.forEach(function(s,k){
+      if(k===0) return;
+      analyzeTimers.push(setTimeout(function(){
+        txt.style.opacity=0;
+        setTimeout(function(){ txt.textContent=s; txt.style.opacity=1; },180);
+        bar.style.width=(12 + k*(88/(steps.length-1)))+'%';
+      }, k*620));
+    });
+    analyzeTimers.push(setTimeout(function(){ bar.style.width='100%'; }, steps.length*620));
+    analyzeTimers.push(setTimeout(function(){ goTo('s-dash'); }, steps.length*620 + 520));
+  }
+
+  function runDash(){
+    var el=document.getElementById('nwVal'), target=235850, dur=1100, t0=performance.now();
+    function tick(now){
+      var p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(target*e).toLocaleString('cs-CZ');
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+    var line=document.getElementById('chartLine'), fill=document.getElementById('chartFill'), dot=document.getElementById('chartDot');
+    var len=line.getTotalLength();
+    line.style.transition='none'; line.style.strokeDasharray=len; line.style.strokeDashoffset=len;
+    dot.style.opacity=0; fill.style.transition='none'; fill.style.opacity=0;
+    requestAnimationFrame(function(){
+      line.style.transition='stroke-dashoffset 1.1s ease'; line.style.strokeDashoffset=0;
+      setTimeout(function(){ fill.style.transition='opacity .5s ease'; fill.style.opacity=1; dot.style.transition='opacity .4s'; dot.style.opacity=1; },700);
+    });
+  }
+
+  function addBub(box, who, text){
+    var b=document.createElement('div'); b.className='bub '+who; b.innerHTML=text; box.appendChild(b);
+  }
+  function assistReply(q){
+    q=(q||'').toLowerCase();
+    if(q.indexOf('inflac')>=0) return 'Při inflaci ti reálnou hodnotu nejvíc ujídá <b>spořicí účet s úrokem 0,5 %</b>. Přesun na 5 % p.a. ti vrátí přes <b>1 200 Kč ročně</b>.';
+    if(q.indexOf('spoř')>=0 || q.indexOf('spor')>=0) return 'Máš 85 000 Kč na účtu s 0,5 %. Nech si 3 výplaty jako rezervu a zbytek dej na 5 % p.a. — rozdíl je <b>+1 200 Kč/rok</b> bez rizika.';
+    if(q.indexOf('energi')>=0 || q.indexOf('přepni')>=0 || q.indexOf('prepni')>=0) return 'Jdu na to. Přepis energie vyřídím za tebe — ušetříš <b>5 040 Kč ročně</b>. Otevři Produkty a potvrď jedním klikem.';
+    if(q.indexOf('ušetř')>=0 || q.indexOf('usetr')>=0 || q.indexOf('letos')>=0) return 'Když přepneš všech 5 položek, ušetříš <b>14 280 Kč</b> za rok. Nejrychlejší výhry: energie (5 040) a povinné ručení (3 480).';
+    return 'Mrkni na záložku <b>Produkty</b> — seřadil jsem ti úspory od největší. Klikni na kteroukoliv a přepnutí vyřídím za tebe.';
+  }
+  function askAssist(q){
+    if(!q || !q.trim()) return;
+    var box=document.getElementById('chatBox');
+    addBub(box,'me',q);
+    var grow=box.parentElement; grow.scrollTop=grow.scrollHeight;
+    setTimeout(function(){ addBub(box,'ai',assistReply(q)); grow.scrollTop=grow.scrollHeight; }, 420);
+  }
+
+  var rewards=[
+    {key:'cestovni', ic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v-2l-8-4.5V4a1.5 1.5 0 0 0-3 0v4.5L2 13v2l8-2v4l-2 1.5V20l3.5-1 3.5 1v-1.5L13 17v-4z"/></svg>', name:'Cestovní pojištění na rok', val:1500, sub:'Krytí po celém světě, zdarma'},
+    {key:'plus', ic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-1.8 10H4.8z"/><path d="M4 21h16"/></svg>', name:'Valuneto Plus na rok', val:1788, sub:'Prémiové funkce bez poplatků'},
+    {key:'portu', logo:'portu.cz', name:'1 500 Kč do investic přes Portu', val:1500, sub:'Rozjezd ETF portfolia'},
+    {key:'rohlik', logo:'rohlik.cz', name:'Dárková karta Rohlík', val:1500, sub:'Na týdenní nákup potravin'},
+    {key:'salonek', ic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V8.5A2.5 2.5 0 0 1 6.5 6h11A2.5 2.5 0 0 1 20 8.5V11"/><path d="M3 12.5A2.5 2.5 0 0 1 5.5 10h13a2.5 2.5 0 0 1 2.5 2.5V17H3z"/><path d="M5 17v2M19 17v2"/></svg>', name:'2× letištní salonek', val:1600, sub:'Pohodlí na cestách'}
+  ];
+  function backToCashback(){ goTo('s-cashback'); }
+  function renderRewards(){
+    var b=document.getElementById('rewardsBody');
+    var cards=rewards.map(function(r,i){
+      var ic = r.logo ? ('<img src="https://www.google.com/s2/favicons?domain='+r.logo+'&sz=128" referrerpolicy="no-referrer" data-fb="'+r.ic+'" onerror="this.parentElement.textContent=this.dataset.fb">') : r.ic;
+      return '<div class="rwd" onclick="chooseReward('+i+')"><div class="ic"'+(r.logo?' style="background:#fff"':'')+'>'+ic+'</div><div><div class="nm">'+r.name+'</div><div class="sm">'+r.sub+'</div></div><div class="val"><b>'+fmt(r.val)+'</b><span>hodnota</span></div></div>';
+    }).join('');
+    b.innerHTML='<p class="rwd-intro">Máš <b style="color:var(--ink)">'+fmt(rewardBalance)+'</b> cashback. Aktivuj odměnu a částka se ti odečte.</p>'+cards;
+  }
+  var rewardOutcomes={
+    cestovni:{ emoji:'🏝️', title:'Pojistka je aktivní', msg:'Cestovní pojištění na rok ti běží od dneška. Certifikát máš i v e-mailu.', code:'POJ-2026-44193', cta:'Zpět do aplikace', go:'s-dash' },
+    plus:{ emoji:'👑', title:'Valuneto Plus je aktivní', msg:'Odemkli jsme ti prémiové funkce na celý rok — bez poplatků a s prioritní podporou.', cta:'Zpět do aplikace', go:'s-dash' },
+    portu:{ emoji:'🚀', title:'1 500 Kč čeká na zainvestování', msg:'Připravili jsme ti vklad do ETF portfolia přes Portu — stačí potvrdit strategii.', cta:'Otevřít investování →', go:'s-invest' },
+    rohlik:{ emoji:'🎁', title:'Tvůj dárkový kód', msg:'Použij ho při platbě na Rohlík.cz. Platí 12 měsíců.', code:'RHLK-7K3M-92QX', cta:'Zkopírovat kód', copy:true },
+    salonek:{ emoji:'🥂', title:'2 vstupy do salonku', msg:'Ukaž kód u vstupu do partnerského letištního salonku. Platí na 2 vstupy.', code:'LNG-4827-PASS', cta:'Zkopírovat kód', copy:true }
+  };
+  function rewardAct(el){
+    if(el.dataset.copy==='1'){ try{ navigator.clipboard.writeText(el.dataset.code); }catch(e){} el.textContent='Zkopírováno ✓'; el.style.background='var(--deep)'; el.style.color='var(--paper)'; return; }
+    if(el.dataset.go){ goTo(el.dataset.go); }
+  }
+  function chooseReward(i){
+    var r=rewards[i], o=rewardOutcomes[r.key]||{title:'Odměna je tvoje', msg:'Potvrzení ti pošleme e-mailem.', cta:'Zpět na cashback', go:'s-cashback'};
+    rewardBalance=Math.max(0, rewardBalance-(r.val||0)); updateRewardBalance();
+    var x='<div class="rwd-done"><div class="checkwrap" style="width:84px;height:84px"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>';
+    x+='<h2 style="font-size:22px;margin-top:20px">'+o.title+' '+(o.emoji||'')+'</h2>';
+    x+='<p class="rwd-intro" style="margin-top:8px">'+o.msg+'</p>';
+    if(o.code) x+='<div class="code-box">'+o.code+'</div>';
+    if(o.copy) x+='<button class="btn" data-code="'+o.code+'" data-copy="1" onclick="rewardAct(this)">'+o.cta+'</button>';
+    else x+='<button class="btn" data-go="'+(o.go||'s-cashback')+'" onclick="rewardAct(this)">'+o.cta+'</button>';
+    x+='<button class="btn ghost" style="margin-top:8px" onclick="backToCashback()">Hotovo</button></div>';
+    document.getElementById('rewardsBody').innerHTML=x;
+  }
+
+  var profile={age:'25-34', job:'zamestnanec', family:'vztah', housing:'najem', goal:'rezerva'};
+  var onbReturn='s-connect';
+  function startOnb(){ onbReturn='s-connect'; goTo('s-onb1'); }
+  function pick(field,value,el){ profile[field]=value; var row=el.parentElement; Array.prototype.slice.call(row.children).forEach(function(c){ c.classList.remove('sel'); }); el.classList.add('sel'); }
+  function finishOnb(){ goTo(onbReturn); }
+  function editGoal(){ onbReturn='s-dash'; goTo('s-onb3'); }
+  function showSkip(){ document.getElementById('skipModal').classList.add('show'); }
+  function hideSkip(){ document.getElementById('skipModal').classList.remove('show'); }
+  function skipOnb(){ profile={}; hideSkip(); goTo('s-connect'); }
+  function updatePerso(){
+    var b=document.getElementById('persoBanner'); if(!b) return;
+    var cfg={
+      rezerva:{t:'Cíl: rezerva', s:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A7F52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>'},
+      dluhy:{t:'Cíl: splatit dluhy', s:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A7F52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 6 4-4 7 7"/><path d="M16 16h5v-5"/></svg>'},
+      investice:{t:'Cíl: investovat', s:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A7F52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M16 8h5v5"/></svg>'},
+      nakup:{t:'Cíl: velký nákup', s:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A7F52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>'}
+    };
+    var c=cfg[profile.goal];
+    if(c){ b.style.display='flex'; document.getElementById('persoTitle').textContent=c.t; b.querySelector('.perso-ic').innerHTML=c.s; }
+    else { b.style.display='none'; }
+  }
+
+  function renderExtras(){
+    var el=document.getElementById('extrasList'); if(!el) return;
+    var p=profile, items=[];
+    if(p.housing==='hypoteka') items.push({e:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 3.5 20.5 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></svg>', n:'Hypotéka', s:'Refinancování — spočítáme úsporu', tag:'Spočítat', t:'neutral'});
+    if(p.family==='deti' || p.job==='rodicovska'){
+      items.push({e:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.5" r="3"/><path d="M6.5 20a5.5 5.5 0 0 1 11 0"/></svg>', n:'Dětské spoření', s:'Odkládej na budoucnost dětí', tag:'Doporučeno', t:'ok'});
+      items.push({e:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.2V11c0 4.6 3.2 7.4 7.5 8.5 4.3-1.1 7.5-3.9 7.5-8.5V5.2L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg>', n:'Životní pojištění', s:'Ochrana příjmu celé rodiny', tag:'Doporučeno', t:'ok'});
+    } else {
+      items.push({e:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.2V11c0 4.6 3.2 7.4 7.5 8.5 4.3-1.1 7.5-3.9 7.5-8.5V5.2L12 2.5Z"/><path d="m9 12 2 2 4-4"/></svg>', n:'Životní pojištění', s:'Zatím nesjednáno', tag:'Sjednat', t:'neutral'});
+    }
+    if(p.goal==='dluhy'){
+      items.push({e:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16201A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v4.5a5 5 0 0 0 5 5 5 5 0 0 0 5-5V4"/><path d="M12 13.5V20"/></svg>', n:'Konsolidace půjček', s:'Sjednoť splátky, plať méně', tag:'Doporučeno', t:'ok'});
+    } else {
+      items.push({logo:'portu.cz', n:'Investice · Portu', s:(p.job==='student'?'Rozjezd už od 500 Kč/měs':'ETF portfolio'), tag:'Aktivní', t:'ok'});
+    }
+    if(!items.length){ el.innerHTML='<p class="scr-intro" style="margin-top:4px">Vyplň profil v onboardingu a doporučíme ti produkty na míru.</p>'; return; }
+    el.innerHTML = items.map(function(it){
+      var ic = it.logo
+        ? '<div class="ic" style="background:#fff"><img src="https://www.google.com/s2/favicons?domain='+it.logo+'&sz=128" referrerpolicy="no-referrer" data-fb="📈" onerror="this.parentElement.textContent=this.dataset.fb"></div>'
+        : '<div class="ic">'+it.e+'</div>';
+      return '<div class="prow static">'+ic+'<div><div class="nm">'+it.n+'</div><div class="sm">'+it.s+'</div></div><div class="pright"><span class="tag '+it.t+'">'+it.tag+'</span></div></div>';
+    }).join('');
+  }
+
+  var goalProgress=62;
+  var goalShort={rezerva:'finanční rezervu', dluhy:'splacení dluhů', investice:'budování majetku', nakup:'velký nákup'};
+  function backFromInvest(){ goTo('s-cashback'); }
+  function investToDash(){ goTo('s-dash'); }
+  function selOne(el){ var row=el.parentElement; Array.prototype.slice.call(row.children).forEach(function(c){ c.classList.remove('sel'); }); el.classList.add('sel'); }
+  function renderInvest(){
+    var b=document.getElementById('investBody'); if(!b) return;
+    b.innerHTML=''
+      +'<div style="display:flex;align-items:center;gap:8px">'
+        +'<button class="onb-back" onclick="backFromInvest()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>'
+        +'<h2 class="h2" style="font-size:22px">Investovat přes Portu</h2>'
+      +'</div>'
+      +'<div class="invest-amt"><span class="il">K zainvestování</span><span class="iv">1 500 Kč</span></div>'
+      +'<div class="onb-q"><div class="onb-label">Zvol strategii</div><div class="chips-row">'
+        +'<button class="opt" onclick="selOne(this)">Opatrná</button>'
+        +'<button class="opt sel" onclick="selOne(this)">Vyvážená</button>'
+        +'<button class="opt" onclick="selOne(this)">Růstová</button>'
+      +'</div></div>'
+      +'<div class="invest-note">Široce diverzifikované ETF portfolio · historicky ~6 % ročně.<span>Minulé výnosy nejsou zárukou budoucích. Investice podléhá riziku ztráty.</span></div>'
+      +'<button class="btn" style="margin-top:20px" onclick="investDone()">Investovat 1 500 Kč</button>';
+  }
+  function investDone(){
+    var b=document.getElementById('investBody'); if(!b) return;
+    var from=goalProgress; goalProgress=Math.min(100, goalProgress+6); var to=goalProgress;
+    var g=goalShort[profile.goal]||'tvému cíli';
+    b.innerHTML=''
+      +'<div class="conf-wrap" id="confWrap"></div>'
+      +'<div style="display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:6;padding-top:26px">'
+        +'<div class="checkwrap"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#05140C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>'
+        +'<h2 style="font-size:24px;margin-top:22px">Investováno!</h2>'
+        +'<p class="rwd-intro" style="margin-top:6px">1 500 Kč putuje do tvého ETF portfolia přes Portu.</p>'
+        +'<div class="goal-card">'
+          +'<div class="gc-top"><span>Blíž k cíli: <b>'+g+'</b></span><span id="gcPct">'+from+' %</span></div>'
+          +'<div class="gc-bar"><i id="goalBar" style="width:'+from+'%"></i></div>'
+          +'<div class="gc-note">Skvělé — posunul ses o <b>6 %</b> blíž svému cíli.</div>'
+        +'</div>'
+        +'<button class="btn" style="margin-top:22px;width:100%" onclick="investToDash()">Zpět na přehled</button>'
+      +'</div>';
+    launchConfetti();
+    setTimeout(function(){ var bar=document.getElementById('goalBar'); if(bar) bar.style.width=to+'%'; },80);
+    var pct=document.getElementById('gcPct'), t0=performance.now();
+    function tick(now){ var p=Math.min(1,(now-t0)/1000); var val=Math.round(from+(to-from)*p); if(pct) pct.textContent=val+' %'; if(p<1) requestAnimationFrame(tick); }
+    requestAnimationFrame(tick);
+  }
+  function launchConfetti(){
+    var w=document.getElementById('confWrap'); if(!w) return;
+    var cols=['#00C46A','#0A7F52','#E7C383','#23E18D','#0C140F'];
+    for(var i=0;i<30;i++){ var d=document.createElement('div'); d.className='confetti'; d.style.left=(Math.random()*100)+'%'; d.style.background=cols[i%cols.length]; d.style.animationDelay=(Math.random()*0.5)+'s'; d.style.borderRadius=(Math.random()>0.5?'2px':'50%'); w.appendChild(d); }
+  }
+
+  var rewardBalance=3000;
+  function updateRewardBalance(){ var e=document.getElementById('cbBalance'); if(e) e.textContent=fmt(rewardBalance); }
+
+  function fitStage(){
+    var s=document.querySelector('.stage');
+    if(!s) return;
+    s.style.transform='none';
+    var w=s.offsetWidth, h=s.offsetHeight;
+    var scale=Math.min(1,(window.innerWidth-16)/w,(window.innerHeight-16)/h);
+    s.style.transform='scale('+scale+')';
+  }
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('load', fitStage);
+  fitStage();
+
+  // ---- investor gate ----
+  var ACCESS_CODE = "VALUNETO26"; // <-- zmen pristupovy kod zde (nezalezi na velikosti pismen)
+  function unlock(){
+    var inp=document.getElementById('gateCode');
+    var err=document.getElementById('gateErr');
+    if(!inp) return;
+    var val=(inp.value||'').trim().toUpperCase();
+    if(val===ACCESS_CODE){
+      var g=document.getElementById('gate');
+      if(err) err.classList.remove('show');
+      g.classList.add('hide');
+      setTimeout(function(){ if(g) g.style.display='none'; fitStage(); }, 460);
+    } else {
+      if(err) err.classList.add('show');
+      inp.value=''; inp.focus();
+    }
+  }
+  window.addEventListener('load', function(){ var i=document.getElementById('gateCode'); if(i) i.focus(); });
+</script>
+</body>
+</html>
